@@ -1,7 +1,7 @@
 import unittest
 import sys
 sys.path.append('../')
-from brFinance import brFinance
+from brFinance import *
 from pandas import DataFrame, Index
 
 
