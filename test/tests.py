@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.path.append('../')
 from brFinance import brFinance
 from pandas import DataFrame, Index
 
