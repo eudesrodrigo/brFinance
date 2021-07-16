@@ -1,0 +1,1 @@
+from brFinance import scrapper

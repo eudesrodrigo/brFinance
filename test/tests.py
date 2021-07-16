@@ -1,7 +1,7 @@
 import unittest
 import sys
 sys.path.append('../')
-from package import brFinance
+import brFinance.scrapper as scrapper
 from pandas import DataFrame, Index
 
 
@@ -18,8 +18,8 @@ class TestSearchENET(unittest.TestCase):
 
 
     def setUp(self):
-        self.driver = brFinance.iniciarChromeDriver()
-        self.search_enet_object = brFinance.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
+        self.driver = scrapper.iniciarChromeDriver()
+        self.search_enet_object = scrapper.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
 
 
     def tearDown(self) -> None:
@@ -59,11 +59,11 @@ class TestSearchENET(unittest.TestCase):
     def test_assert_raises(self):
 
         # Test if raises exception for invalid CVM code
-        self.assertRaises(ValueError, brFinance.SearchENET, cod_cvm=2, category=21)
+        self.assertRaises(ValueError, scrapper.SearchENET, cod_cvm=2, category=21)
 
 
         # Test if raises exception for invalid category
-        self.assertRaises(ValueError, brFinance.SearchENET, cod_cvm=21610, category=5000)
+        self.assertRaises(ValueError, scrapper.SearchENET, cod_cvm=21610, category=5000)
         # Tests method get_search_results result for wrong category type (30 does not exist)
         #self.assertIsInstance(search_enet_object.get_search_results(categoria="30"), DataFrame, msg="wait_load returned less than 0 for tabela_resultados.")
 
