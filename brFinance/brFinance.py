@@ -261,49 +261,49 @@ def get_company_reports_links(cod_cvm, driver, categoria="21"):
     table = LH.fromstring(table_html)
     df = pd.read_html(table_html)
 
-    for df_aux in df:
+    for df_result in df:
         print("Código CVM:", cod_cvm, "Quantidade de tabelas encontradas:", len(
-            df), " Linhas:", len(df_aux.index))
-        if len(df_aux.index) > 0:
+            df), " Linhas:", len(df_result.index))
+        if len(df_result.index) > 0:
             pattern = "OpenPopUpVer(\'(.*?)\')"
-            df_aux['linkView'] = table.xpath(
+            df_result['linkView'] = table.xpath(
                 '//tr/td/i[1]/@onclick')
-            df_aux['linkDownload'] = table.xpath(
+            df_result['linkDownload'] = table.xpath(
                 '//tr/td/i[2]/@onclick')
 
-            df_aux['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
-                df_aux['linkView'].str.extract(
+            df_result['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
+                df_result['linkView'].str.extract(
                     r"(?<=\')(.*?)(?=\')", expand=False)
 
-            df3 = df_aux['linkDownload'].str.split(
+            df3 = df_result['linkDownload'].str.split(
                 ',', expand=True)
             df3.columns = ['COD{}'.format(
                 x+1) for x in df3.columns]
-            df_aux = df_aux.join(df3)
-            df_aux['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
-                df_aux['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                "&numVersao=" + df_aux['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                "&numProtocolo=" + df_aux['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                "&descTipo=" + df_aux['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+            df_result = df_result.join(df3)
+            df_result['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
+                df_result['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                "&numVersao=" + df_result['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                "&numProtocolo=" + df_result['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                "&descTipo=" + df_result['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
                 "&CodigoInstituicao=1"
 
-            df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+            df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
                             'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
                                 'linkView', 'linkDownload']]
 
-            df_aux['Data Referência'] = df_aux['Data Referência'].str.split(
+            df_result['Data Referência'] = df_result['Data Referência'].str.split(
                 ' ', 1).str[1]
 
-            df_aux['Data Referência'] = pd.to_datetime(
-                df_aux["Data Referência"], format="%d/%m/%Y", errors="coerce")
+            df_result['Data Referência'] = pd.to_datetime(
+                df_result["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
-            df_aux = df_aux[df_aux["Status"] == "Ativo"]
-            df_aux["Código CVM"] = cod_cvm
-            df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+            df_result = df_result[df_result["Status"] == "Ativo"]
+            df_result["Código CVM"] = cod_cvm
+            df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
                             'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
                                 'linkView', 'linkDownload']]
 
-        df_aux = df_aux.reset_index(drop=True)
+        df_result = df_result.reset_index(drop=True)
         break
     # while retriesCount < maxRetries:
     #     try:
@@ -358,56 +358,56 @@ def get_company_reports_links(cod_cvm, driver, categoria="21"):
     #         table = LH.fromstring(table_html)
     #         df = pd.read_html(table_html)
 
-    #         for df_aux in df:
+    #         for df_result in df:
     #             print("Código CVM:", cod_cvm, "Quantidade de tabelas encontradas:", len(
-    #                 df), " Linhas:", len(df_aux.index))
-    #             if len(df_aux.index) > 0:
+    #                 df), " Linhas:", len(df_result.index))
+    #             if len(df_result.index) > 0:
     #                 pattern = "OpenPopUpVer(\'(.*?)\')"
-    #                 df_aux['linkView'] = table.xpath(
+    #                 df_result['linkView'] = table.xpath(
     #                     '//tr/td/i[1]/@onclick')
-    #                 df_aux['linkDownload'] = table.xpath(
+    #                 df_result['linkDownload'] = table.xpath(
     #                     '//tr/td/i[2]/@onclick')
 
-    #                 df_aux['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
-    #                     df_aux['linkView'].str.extract(
+    #                 df_result['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
+    #                     df_result['linkView'].str.extract(
     #                         r"(?<=\')(.*?)(?=\')", expand=False)
 
-    #                 df3 = df_aux['linkDownload'].str.split(
+    #                 df3 = df_result['linkDownload'].str.split(
     #                     ',', expand=True)
     #                 df3.columns = ['COD{}'.format(
     #                     x+1) for x in df3.columns]
-    #                 df_aux = df_aux.join(df3)
-    #                 df_aux['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
-    #                     df_aux['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-    #                     "&numVersao=" + df_aux['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-    #                     "&numProtocolo=" + df_aux['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-    #                     "&descTipo=" + df_aux['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+    #                 df_result = df_result.join(df3)
+    #                 df_result['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
+    #                     df_result['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+    #                     "&numVersao=" + df_result['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+    #                     "&numProtocolo=" + df_result['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+    #                     "&descTipo=" + df_result['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
     #                     "&CodigoInstituicao=1"
 
-    #                 df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+    #                 df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
     #                                 'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
     #                                  'linkView', 'linkDownload']]
 
-    #                 df_aux['Data Referência'] = df_aux['Data Referência'].str.split(
+    #                 df_result['Data Referência'] = df_result['Data Referência'].str.split(
     #                     ' ', 1).str[1]
 
-    #                 df_aux['Data Referência'] = pd.to_datetime(
-    #                     df_aux["Data Referência"], format="%d/%m/%Y", errors="coerce")
+    #                 df_result['Data Referência'] = pd.to_datetime(
+    #                     df_result["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
-    #                 df_aux = df_aux[df_aux["Status"] == "Ativo"]
-    #                 df_aux["Código CVM"] = cod_cvm
-    #                 df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+    #                 df_result = df_result[df_result["Status"] == "Ativo"]
+    #                 df_result["Código CVM"] = cod_cvm
+    #                 df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
     #                                 'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
     #                                  'linkView', 'linkDownload']]
 
-    #             df_aux = df_aux.reset_index(drop=True)
+    #             df_result = df_result.reset_index(drop=True)
     #             break
     #         break
     #     except Exception as exp:
     #         print("Erro ao importar", str(exp))
     #         retriesCount += 1
 
-    return df_aux
+    return df_result
 
 
 def obtemDadosCadastraisCVM(compAtivas=True, codCVM=False):
@@ -676,7 +676,7 @@ class SearchENET:
         self.check_category_exist(self.category)
 
 
-    def cod_cvm_list(self):
+    def cod_cvm_list(self) -> pd.DataFrame:
         """
         Returns a dataframe of all CVM codes and Company names availble at https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx
         """
@@ -684,22 +684,23 @@ class SearchENET:
             driver = iniciarChromeDriver()
         else:
             driver=self.driver
-
         driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
 
         #wait_pageload()
-        for retrie in range(10):
+        for retrie in range(50):
             try:
                 html = str(driver.find_element_by_id('hdnEmpresas').get_attribute("value"))
                 listCodCVM = re.findall("(?<=\_)(.*?)(?=\')", html)
                 listNomeEmp = re.findall("(?<=\-)(.*?)(?=\')", html)
-            except:
-                time.sleep(1)
-            finally:
                 codigos_cvm = pd.DataFrame(list(zip(listCodCVM, listNomeEmp)),
                                 columns=['codCVM', 'nome_empresa'])
                 codigos_cvm['codCVM'] = pd.to_numeric(codigos_cvm['codCVM'])
-                break
+                if len(codigos_cvm.index) > 0:
+                    break
+                else:
+                    time.sleep(1)
+            except:
+                time.sleep(1)
 
         if self.driver is None:
             driver.quit()
@@ -709,6 +710,7 @@ class SearchENET:
 
     def check_cod_cvm_exist(self, cod_cvm) -> bool:
         codigos_cvm_available = self.cod_cvm_list()
+        print(codigos_cvm_available['codCVM'].values)
         cod_cvm_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in codigos_cvm_available['codCVM'].values]
         if cod_cvm_exists:
             return True
@@ -803,172 +805,110 @@ class SearchENET:
 
         table_html = str(driver.find_element_by_id('grdDocumentos').get_attribute("outerHTML"))
         table = LH.fromstring(table_html)
-        df = pd.read_html(table_html)
+        results = pd.read_html(table_html)
 
-        for df_aux in df:
-            if len(df_aux.index) > 0:
+        for df_result in results:
+            if len(df_result.index) > 0:
                 pattern = "OpenPopUpVer(\'(.*?)\')"
-                df_aux['linkView'] = table.xpath('//tr/td/i[1]/@onclick')
-                df_aux['linkDownload'] = table.xpath('//tr/td/i[2]/@onclick')
+                df_result['linkView'] = table.xpath('//tr/td/i[1]/@onclick')
+                df_result['linkDownload'] = table.xpath('//tr/td/i[2]/@onclick')
 
-                df_aux['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
-                    df_aux['linkView'].str.extract(
-                        r"(?<=\')(.*?)(?=\')", expand=False)
+                df_result['linkView'] = "https://www.rad.cvm.gov.br/ENET/" + \
+                    df_result['linkView'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False)
 
-                df3 = df_aux['linkDownload'].str.split(
-                    ',', expand=True)
-                df3.columns = ['COD{}'.format(
-                    x+1) for x in df3.columns]
-                df_aux = df_aux.join(df3)
-                df_aux['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
-                    df_aux['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                    "&numVersao=" + df_aux['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                    "&numProtocolo=" + df_aux['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
-                    "&descTipo=" + df_aux['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                df3 = df_result['linkDownload'].str.split(',', expand=True)
+                df3.columns = ['COD{}'.format(x+1) for x in df3.columns]
+                df_result = df_result.join(df3)
+                df_result['linkDownload'] = "https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&numSequencia=" + \
+                    df_result['COD1'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                    "&numVersao=" + df_result['COD2'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                    "&numProtocolo=" + df_result['COD3'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
+                    "&descTipo=" + df_result['COD4'].str.extract(r"(?<=\')(.*?)(?=\')", expand=False) + \
                     "&CodigoInstituicao=1"
 
-                df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+                df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
                                 'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
                                     'linkView', 'linkDownload']]
 
-                df_aux['Data Referência'] = df_aux['Data Referência'].str.split(
+                df_result['Data Referência'] = df_result['Data Referência'].str.split(
                     ' ', 1).str[1]
 
-                df_aux['Data Referência'] = pd.to_datetime(
-                    df_aux["Data Referência"], format="%d/%m/%Y", errors="coerce")
+                df_result['Data Referência'] = pd.to_datetime(
+                    df_result["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
-                df_aux = df_aux[df_aux["Status"] == "Ativo"]
-                df_aux["Código CVM"] = self.cod_cvm
-                df_aux = df_aux[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
+                df_result = df_result[df_result["Status"] == "Ativo"]
+                df_result["Código CVM"] = self.cod_cvm
+                df_result = df_result[['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie',
                                 'Data Referência', 'Data Entrega', 'Status', 'V', 'Modalidade',
                                     'linkView', 'linkDownload']]
 
-            df_aux = df_aux.reset_index(drop=True)
+            df_result = df_result.reset_index(drop=True)
             break
 
         if self.driver is None:
             driver.quit()
 
-        print(f"Resultados da busca ENET: {len(df_aux.index)}")
-        return df_aux
-
-    # @property
-    # def search_financial_reports(self) -> pd.DataFrame:
-    #     """
-    #     Get report data such as reference date, kind, currently active or not, link to view, link to download, etc.
-    #     """
-
-    #     # Search results for anual reports
-    #     reports_search_results = self.get_search_results(categoria=str(self.category))
-
-    #     # Search results for quarter reports
-    #     #reports_search_results = reports_search_results.append(self.get_search_results(categoria="39"))
-
-    #     return reports_search_results
+        print(f"Resultados da busca ENET: {len(df_result.index)}")
+        return df_result
 
 
 @dataclass
 class FinancialReport:
-    def __init__(self, link: str, driver: webdriver):
+    def __init__(self, link: str, driver: webdriver = None):
         self.link = link
-
-        self.get_reports(driver=driver)
-
-
-    def wait_load(self, driver, tipo):
-        """
-        Wait page load certain elements before continues.
-
-        Improve!!!!
-        """
-
-        if tipo == "hash":
-            timeWait = 5
-            timePass = 1
-            hash = driver.find_element_by_xpath(
-                "//html/body/form/input[8]").get_attribute("value")
-            while hash == "" and timePass <= timeWait:
-                time.sleep(1)
-                timePass += 1
-                hash = driver.find_element_by_xpath(
-                    "//html/body/form/input[8]").get_attribute("value")
-                if hash != "":
-                    return hash
-            return None
-
-        elif(tipo == "CECVM"):
-            timeWait = 5
-            timePass = 1
-            linhasCarregadas = driver.find_element_by_xpath(
-                "//html/body/form[1]/div[5]/div/div[3]").text
-            while linhasCarregadas == "Mostrando de 0 até 0 de 0 registros" and timePass <= timeWait:
-                time.sleep(1)
-                timePass += 1
-                linhasCarregadas = driver.find_element_by_xpath(
-                    "//html/body/form[1]/div[5]/div/div[3]").text
-                if linhasCarregadas != "Mostrando de 0 até 0 de 0 registros":
-                    return
-            return None
-            return
+        self.driver = driver
 
 
-    def get_financial_reports_from_link(self, driver: webdriver) -> Dict:
+    @property
+    def financial_reports(self) -> Dict:
         """
         Returns a dictionary with financial reports available in a page such as 
         Reports currently available:
         - 
         """
         link = self.link
+
+        if self.driver is None:
+            driver = iniciarChromeDriver()
+        else:
+            driver=self.driver
+
         erros = 0
+        max_retries = 10
         
         dictDemonstrativos = None
 
-        while erros < 4:
+        while erros < max_retries:
             try:
                 print("Coletando dados do link:", link)
-                size = driver.get_window_size()
                 driver.get(link)
 
-                hash = "&Hash=" + self.wait_load(driver, "hash")
-
-                # Quebra do captcha
-                while True:
+                # Wait page load the reports
+                for retrie in range(max_retries):
                     # Quando o captcha é que quebrado, options_text trás as opções de demonstrativos
                     options_text = [x.get_attribute("text") for x in driver.find_element_by_name(
                         "cmbQuadro").find_elements_by_tag_name("option")]
-                    options_links = ["https://www.rad.cvm.gov.br/ENET/" + x.get_attribute("value") + hash for x in driver.find_element_by_name(
-                        "cmbQuadro").find_elements_by_tag_name("option")]
-                    if len(options_text) == 0:
-                        captchaKey = driver.find_element_by_xpath(
-                            "//html/body/form/div[3]/div/div[2]/div").get_attribute("data-sitekey")
-                        # solver = recaptchaV2Proxyless()
-                        # solver.set_verbose(1)
-                        # solver.set_key("")
-                        # solver.set_website_url(link)
-                        # solver.set_website_key(captchaKey)
-                        # g_response = solver.solve_and_return_solution()
-                        # captchaTag = driver.find_element_by_xpath(
-                        #     "//html/body/form/input[12]")
-                        # driver.execute_script(
-                        #     'arguments[0].value = arguments[1]', captchaTag, g_response)
-                        # driver.find_element_by_id("Form1").submit()
-                        self.wait_load(driver, "hash")
-                    elif len(options_text) > 0:
+
+                    if len(options_text) > 0:
                         break
+                    else:
+                        time.sleep(1)
 
                 # Navega nos demonstrativos e salva o dataframe no dicionario
+                refDate = driver.find_element_by_id('lblDataDocumento').text
+                versaoDoc = driver.find_element_by_id(
+                    'lblDescricaoCategoria').text.split(" - ")[-1].replace("V", "")
+                
+                report = {"ref_date": refDate,
+                          "versao": int(versaoDoc),
+                          "cod_cvm": int(driver.find_element_by_id('hdnCodigoCvm').get_attribute("value"))
+                          }
+
                 dictDemonstrativos = {}
                 for demonstrativo in options_text:
                     print(demonstrativo)
 
-                    #wait_pageload(driver, demonstrativo)
-
-                    refDate = driver.find_element_by_id('lblDataDocumento').text
-                    versaoDoc = driver.find_element_by_id(
-                        'lblDescricaoCategoria').text.split(" - ")[-1].replace("V", "")
-
-                    driver.find_element_by_xpath(
-                        "//select[@name='cmbQuadro']/option[text()='{option_text}']".format(option_text=demonstrativo)).click()
+                    driver.find_element_by_xpath("//select[@name='cmbQuadro']/option[text()='{option_text}']".format(option_text=demonstrativo)).click()
 
                     iframe = driver.find_element_by_xpath(
                         "//iframe[@id='iFrameFormulariosFilho']")
@@ -979,7 +919,6 @@ class FinancialReport:
                         index_moeda = -2
                     else:
                         index_moeda = -1
-                    print("Index moeda", index_moeda)
 
                     moedaUnidade = driver.find_element_by_id(
                         'TituloTabelaSemBorda').text.split(" - ")[index_moeda].replace("(", "").replace(")", "")
@@ -1014,9 +953,7 @@ class FinancialReport:
                     # Add data de referencia e versão aos Dataframes
                     df["refDate"] = refDate
                     df["versaoDoc"] = versaoDoc
-                    #df["codCVM"] = cod_cvm
                     df["moedaUnidade"] = moedaUnidade
-                    print(moedaUnidade)
 
                     df["refDate"] = pd.to_datetime(df["refDate"], errors="coerce")
 
@@ -1028,36 +965,37 @@ class FinancialReport:
                 print("-"*60)
 
                 # Add data de referencia ao ditc de demonstrativos
-                dictDemonstrativos["ref_date"] = refDate
-                dictDemonstrativos["versao"] = int(versaoDoc)
-                dictDemonstrativos["cod_cvm"] = int(driver.find_element_by_id('hdnCodigoCvm').get_attribute("value"))
+                report["reports"] = dictDemonstrativos
                 break
             except Exception as exp:
                 print("Erro ao carregar demonstrativo. Tentando novamente...")
                 print(str(exp))
                 erros += 1
                 continue
+        
+        if self.driver is None:
+            driver.quit()
 
-        return dictDemonstrativos
+        return report
 
 
-    def get_reports(self, driver: webdriver) -> Dict:
-        """
-        Return a dict with all financial data for a given link of a company's report
-        """
+    # def get_reports(self, driver: webdriver) -> Dict:
+    #     """
+    #     Return a dict with all financial data for a given link of a company's report
+    #     """
 
-        dict_financial_reports = self.get_financial_reports_from_link(driver=driver)
+    #     dict_financial_reports = self.get_financial_reports_from_link(driver=driver)
 
-        self.dre = dict_financial_reports["Demonstração do Resultado"]
-        self.dfc = dict_financial_reports["Demonstração do Fluxo de Caixa"]
-        self.bpa = dict_financial_reports["Balanço Patrimonial Ativo"]
-        self.bpp = dict_financial_reports["Balanço Patrimonial Passivo"]
-        self.dra = dict_financial_reports["Demonstração do Resultado Abrangente"]
-        self.dmpl = dict_financial_reports["Demonstração das Mutações do Patrimônio Líquido"]
-        self.dva = dict_financial_reports["Demonstração de Valor Adicionado"]
-        self.cod_cvm = dict_financial_reports["cod_cvm"]
-        self.ref_date = dict_financial_reports["ref_date"]
-        self.versao = dict_financial_reports["versao"]
+    #     self.dre = dict_financial_reports["Demonstração do Resultado"]
+    #     self.dfc = dict_financial_reports["Demonstração do Fluxo de Caixa"]
+    #     self.bpa = dict_financial_reports["Balanço Patrimonial Ativo"]
+    #     self.bpp = dict_financial_reports["Balanço Patrimonial Passivo"]
+    #     self.dra = dict_financial_reports["Demonstração do Resultado Abrangente"]
+    #     self.dmpl = dict_financial_reports["Demonstração das Mutações do Patrimônio Líquido"]
+    #     self.dva = dict_financial_reports["Demonstração de Valor Adicionado"]
+    #     self.cod_cvm = dict_financial_reports["cod_cvm"]
+    #     self.ref_date = dict_financial_reports["ref_date"]
+    #     self.versao = dict_financial_reports["versao"]
 
         return dict_financial_reports
 
@@ -1083,11 +1021,11 @@ class Company:
         driver = iniciarChromeDriver()
         search_anual_reports = SearchENET(cod_cvm=21610, category=21, driver=driver).search
         search_quarter_reports = SearchENET(cod_cvm=21610, category=39, driver=driver).search
-        search_reports = search_anual_reports.append(search_quarter_reports)
+        search_reports_result = search_anual_reports.append(search_quarter_reports)
 
-        reports = {}
-        for index, report_info in search_reports.iterrows():
-            reports[report_info["Data Referência"]] = FinancialReport(link=report_info["linkView"], driver=driver)
+        reports = []
+        for index, report_info in search_reports_result.iterrows():
+            reports.append(FinancialReport(link=report_info["linkView"], driver=driver).financial_reports)
         
         driver.quit()
 
