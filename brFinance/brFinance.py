@@ -979,27 +979,6 @@ class FinancialReport:
         return report
 
 
-    # def get_reports(self, driver: webdriver) -> Dict:
-    #     """
-    #     Return a dict with all financial data for a given link of a company's report
-    #     """
-
-    #     dict_financial_reports = self.get_financial_reports_from_link(driver=driver)
-
-    #     self.dre = dict_financial_reports["Demonstração do Resultado"]
-    #     self.dfc = dict_financial_reports["Demonstração do Fluxo de Caixa"]
-    #     self.bpa = dict_financial_reports["Balanço Patrimonial Ativo"]
-    #     self.bpp = dict_financial_reports["Balanço Patrimonial Passivo"]
-    #     self.dra = dict_financial_reports["Demonstração do Resultado Abrangente"]
-    #     self.dmpl = dict_financial_reports["Demonstração das Mutações do Patrimônio Líquido"]
-    #     self.dva = dict_financial_reports["Demonstração de Valor Adicionado"]
-    #     self.cod_cvm = dict_financial_reports["cod_cvm"]
-    #     self.ref_date = dict_financial_reports["ref_date"]
-    #     self.versao = dict_financial_reports["versao"]
-
-        return dict_financial_reports
-
-
 @dataclass
 class Company:
     def __init__(self, cod_cvm: int):

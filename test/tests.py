@@ -1,5 +1,5 @@
 import unittest
-import brFinance import brFinance
+from brFinance import brFinance
 from pandas import DataFrame, Index
 
 
