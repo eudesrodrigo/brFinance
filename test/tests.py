@@ -6,7 +6,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 working_dir = os.path.join(current_dir , "..")
 import sys
 sys.path.append(working_dir)
-import brFinance.scrapper as scrapper
+import brFinance.scraper as scraper
 from pandas import DataFrame, Index
 
 import brFinance.utils as utils
@@ -14,7 +14,7 @@ from datetime import date
 
 class TestSearchENET(unittest.TestCase):
     """
-    tests for class SearchENET from module scrapper
+    tests for class SearchENET from module scraper
     """
 
     @classmethod
@@ -29,7 +29,7 @@ class TestSearchENET(unittest.TestCase):
 
     def setUp(self):
         self.driver = utils.Browser.run_chromedriver()
-        self.search_enet_object = scrapper.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
+        self.search_enet_object = scraper.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
 
 
     def tearDown(self) -> None:
@@ -69,11 +69,11 @@ class TestSearchENET(unittest.TestCase):
     def test_assert_raises(self):
 
         # Test if raises exception for invalid CVM code
-        self.assertRaises(ValueError, scrapper.SearchENET, cod_cvm=2, category=21)
+        self.assertRaises(ValueError, scraper.SearchENET, cod_cvm=2, category=21)
 
 
         # Test if raises exception for invalid category
-        self.assertRaises(ValueError, scrapper.SearchENET, cod_cvm=21610, category=5000)
+        self.assertRaises(ValueError, scraper.SearchENET, cod_cvm=21610, category=5000)
         # Tests method get_search_results result for wrong category type (30 does not exist)
         #self.assertIsInstance(search_enet_object.get_search_results(categoria="30"), DataFrame, msg="wait_load returned less than 0 for tabela_resultados.")
 
