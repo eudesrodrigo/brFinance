@@ -410,10 +410,12 @@ class SearchENET:
         # self.cod_cvm_dataframe = self.cod_cvm_list()
         
         self.cod_cvm = cod_cvm
-        self.check_cod_cvm_exist(self.cod_cvm)
+        if cod_cvm is not None:
+            self.check_cod_cvm_exist(self.cod_cvm)
         
         self.category = category
-        self.check_category_exist(self.category)
+        if category is not None:
+            self.check_category_exist(self.category)
 
 
     def cod_cvm_list(self) -> pd.DataFrame:
