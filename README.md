@@ -81,11 +81,21 @@
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
+
 brFinance is a webscraping tool to simplify access to brazilian financial data. It provides data from various sources such as CVM (equivelent of SEC in USA), B3 (Brazilian stock exchange), Banco Central (equivalent of FED in USA), ANBIMA, etc.
 
 Here's is some of the data currently available:
-* Financial statements: Balance sheet, Income statement, Cash flow statement, etc.
+* Financial statements:
+* * Balanço Patrimonial Ativo (Balance sheet - Assets)
+* * Balanço Patrimonial Passivo (Balance sheet - Liabilities)
+* * Demonstração do Resultado  (Income statement)
+* * Demonstração do Resultado Abrangente
+* * Demonstração do Fluxo de Caixa (Cash flow statement)
+* * Demonstração das Mutações do Patrimônio Líquido
+* * Demonstração de Valor Adicionado
+
 * Banco central PTAX (trade average price for currencies)
+
 * ANBIMA IMA index (brazilian bonds index)
 
 ### Built With
@@ -201,7 +211,7 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
 [issues-url]: https://github.com/othneildrew/Best-README-Template/issues
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[license-url]: https://github.com/eudesrodrigo/brFinance/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/eudesrodrigo
 [product-screenshot]: images/screenshot.png

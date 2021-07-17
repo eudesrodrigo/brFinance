@@ -404,7 +404,7 @@ class SearchENET:
     Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx according to the input parameters
     """
 
-    def __init__(self, cod_cvm: int, category: int, driver: webdriver = None):
+    def __init__(self, cod_cvm: int = None, category: int = None, driver: webdriver = None):
         self.driver = driver
         
         # self.cod_cvm_dataframe = self.cod_cvm_list()
@@ -450,7 +450,6 @@ class SearchENET:
 
     def check_cod_cvm_exist(self, cod_cvm) -> bool:
         codigos_cvm_available = self.cod_cvm_list()
-        print(codigos_cvm_available['codCVM'].values)
         cod_cvm_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in codigos_cvm_available['codCVM'].values]
         if cod_cvm_exists:
             return True
