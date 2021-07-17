@@ -139,22 +139,24 @@ This is an example of how to list things you need to use the software and how to
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-
+## Brazilian companies data (Quarter and Anual reports)
 We encourage you to have a look at our Example.ipynb where you will find a quick explanation on how to instatiate a company object and get the data available. 
-After importing the package you can create a new Company object providing the company CVM code (cod_cvm):
 
-[![Creating a new object to get Petrobras' financial data. The package will start the web scraping process.][instatiate]]
+This package gets data from the CVM website that is periodically updated.
+![Method to get the CVM codes and company names available.][cod_cvm_list](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
+
+After importing the package you can create a new Company object providing the company CVM code (cod_cvm):
+![Creating a new object to get Petrobras' financial data. The package will start the web scraping process (It takes a while...).][instatiate]
+
+Once you have instatiated the Company object you can access its attributes. The reports attribute is a list of dicts with all financial statements available organized by reference date:
+
+![Petrobras' Income Statement dataframe (DRE)][dre]
 
 In case you don't now the CVM code for a company you can get dataframe using the class SearchENET:
 
-[![Method to get the CVM codes and company names available.][cod_cvm_list]]
+![Method to get the CVM codes and company names available.][cod_cvm_list]
 
-After importing the package you can create a new Company object providing the company CVM code:
-
-guide to better understand what DVC is and how it can fit your scenarios.
-
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+![Method to get the CVM codes and company names available.][cod_cvm_list](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
 
 
@@ -228,3 +230,5 @@ Project Link: [https://github.com/eudesrodrigo/brFinance](https://github.com/eud
 [linkedin-url]: https://linkedin.com/in/eudesrodrigo
 [instatiate]: images/image-1.png
 [cod_cvm_list]: images/image-2.png
+[dre]: images/image-3.png
+[b3]: images/image-4.png
