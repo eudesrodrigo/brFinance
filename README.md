@@ -34,10 +34,10 @@
   <h3 align="center">brFinance</h3>
 
   <p align="center">
-    A Python webscraping tool to get financial data of brazilian companies and institutions.
+    A Python web scraping package to simplify access to financial data of brazilian companies and institutions.
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
+    <!--a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <br /-->
     <br />
     <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
     ·
@@ -82,7 +82,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-brFinance is a webscraping tool to simplify access to brazilian financial data. It provides data from various sources such as CVM (equivelent of SEC in USA), B3 (Brazilian stock exchange), Banco Central (equivalent of FED in USA), ANBIMA, etc.
+brFinance is a web scraping package to simplify access to financial data. It provides data from various sources such as CVM (brazilian equivelent of SEC), B3 (Brazilian stock exchange), Banco Central (brazilian equivalent of FED), ANBIMA, etc.
 
 Here's is some of the data currently available:
 * Financial statements:
@@ -94,7 +94,7 @@ Here's is some of the data currently available:
 * * Demonstração das Mutações do Patrimônio Líquido
 * * Demonstração de Valor Adicionado
 
-* Banco central PTAX (trade average price for currencies)
+* Banco central PTAX (average trade price for currencies in BRL)
 
 * ANBIMA IMA index (brazilian bonds index)
 
@@ -108,16 +108,17 @@ This package uses mainly:
 <!-- GETTING STARTED -->
 ## Getting Started
 
-brFinace uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The package sets up the driver automaticaly, however you can set it up on your own.
+brFinace uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The package sets up the driver automaticaly, however you can also set it up on your own.
 [Click here](https://selenium-python.readthedocs.io/installation.html) to understand how to setup Selenium webdriver on your OS.
 
-### Prerequisites
+<!--### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
 * npm
   ```sh
   npm install npm@latest -g
   ```
+-->
 
 ### Installation
 
@@ -135,27 +136,23 @@ We encourage you to have a look at our Example.ipynb where you will find a quick
 This package gets data from the CVM website that is periodically updated.
 [![Method to get the CVM codes and company names available.][b3]](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
-After importing the package you can create a new Company object providing the company CVM code (cod_cvm):
+After importing the package you can create a new Company object by providing the company CVM code (cod_cvm):
 ![Creating a new object to get Petrobras' financial data. The package will start the web scraping process (It takes a while...).][instatiate]
 
 Once you have instatiated the Company object you can access its attributes. The reports attribute is a list of dicts with all financial statements available organized by reference date:
 
 ![Petrobras' Income Statement dataframe (DRE)][dre]
 
-In case you don't now the CVM code for a company you can get dataframe using the class SearchENET:
-
+You can also use the method cod_cvm_list() from class SearchENET to find the CVM code for a specific company:
 ![Method to get the CVM codes and company names available.][cod_cvm_list]
 
-![Method to get the CVM codes and company names available.][cod_cvm_list](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
-
-
-<!-- ROADMAP -->
+<!-- ROADMAP 
 ## Roadmap
 
 See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
 
-
+-->
 
 <!-- CONTRIBUTING -->
 ## Contributing
