@@ -24,6 +24,7 @@ import requests
 import glob
 import time
 import os
+from fake_useragent import UserAgent
 
 import brFinance.utils as utils
 
