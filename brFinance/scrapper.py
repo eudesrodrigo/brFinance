@@ -519,7 +519,7 @@ def obtemCodCVM():
 
 def obter_indices_anbima(dataIni, dataFim):
     link = "https://www.anbima.com.br/informacoes/ima/ima-sh.asp"
-    driver = run_chromedriver(system="Windows")
+    driver = utils.Browser.(system="Windows")
     #dataIni = datetime.now().strftime("%d%m%Y")
     dataIni = datetime.strptime(dataIni, '%d/%m/%Y')
     dataFim = datetime.strptime(dataFim, '%d/%m/%Y')
