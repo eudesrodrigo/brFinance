@@ -91,15 +91,15 @@ Here's is some of the data currently available:
 ### Built With
 
 This package uses mainly:
-* [Pandas](https://getbootstrap.com)
-* [Selenium](https://jquery.com)
-* [Beautifulsoup](https://laravel.com)
+* [Pandas](https://pandas.pydata.org/)
+* [Selenium](https://pypi.org/project/selenium/)
+* [Beautifulsoup](https://pypi.org/project/beautifulsoup4/)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-brFinace uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The tool sets up the driver automaticaly, however you can set it up on your own.
-Click here to understand how to setup Selenium webdriver on your OS.
+brFinace uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The package sets up the driver automaticaly, however you can set it up on your own.
+[Click here](https://selenium-python.readthedocs.io/installation.html) to understand how to setup Selenium webdriver on your OS.
 
 ### Prerequisites
 
@@ -111,7 +111,7 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. pip install git+git://github.com/eudesrodrigo/brFinance
 2. Clone the repo
    ```sh
    git clone https://github.com/your_username_/Project-Name.git
