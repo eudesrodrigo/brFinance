@@ -186,5 +186,6 @@ pip-selfcheck.json
 /selenium
 /downloads
 /__pycache__
+*/test/reports/*
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,venv

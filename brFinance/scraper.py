@@ -28,6 +28,7 @@ from fake_useragent import UserAgent
 
 import brFinance.utils as utils
 
+import pickle
 ssl._create_default_https_context = ssl._create_unverified_context
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -380,12 +381,34 @@ class Company:
 
         reports = {}
         for index, report_info in search_reports_result.iterrows():
-            report_obj = FinancialReport(link=report_info["linkView"], driver=driver).financial_reports
+            
+            # Create folder and save reports locally
+            m = re.search(r"(?<=\Documento=)(.*?)(?=\&)", report_info['linkView'])
+            if m:
+                document_number = m.group(1)
+            path_save_reports = f'{os.getcwd()}/reports'
+            utils.File.create_folder(path_save_reports)
+            report_file = f'{path_save_reports}/{document_number}.plk'
+
+            # Check if report is available locally, otherwise download it.
+            if utils.File.check_exist(report_file):
+                with open(report_file, 'rb') as load_report:
+                    report_obj = pickle.load(load_report)
+                    print("Carregado localmente!")
+            else:
+                report_obj = FinancialReport(link=report_info["linkView"], driver=driver).financial_reports
+                with open(report_file, 'wb') as save_report:
+                    pickle.dump(report_obj, save_report)
+
             reports[report_obj["ref_date"]] = report_obj["reports"]
         
         driver.quit()
 
         return reports
+
+
+if __name__ == '__main__':
+    petrobras = Company(cod_cvm=9512)
 
 
 def obtemDadosCadastraisCVM(compAtivas=True, codCVM=False):
