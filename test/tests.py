@@ -9,6 +9,8 @@ sys.path.append(working_dir)
 import brFinance.scrapper as scrapper
 from pandas import DataFrame, Index
 
+import brFinance.utils as utils
+from datetime import date
 
 class TestSearchENET(unittest.TestCase):
 
@@ -23,7 +25,7 @@ class TestSearchENET(unittest.TestCase):
 
 
     def setUp(self):
-        self.driver = scrapper.iniciarChromeDriver()
+        self.driver = utils.Browser.run_chromedriver()
         self.search_enet_object = scrapper.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
 
 
@@ -72,6 +74,19 @@ class TestSearchENET(unittest.TestCase):
         # Tests method get_search_results result for wrong category type (30 does not exist)
         #self.assertIsInstance(search_enet_object.get_search_results(categoria="30"), DataFrame, msg="wait_load returned less than 0 for tabela_resultados.")
 
+
+class TestUtilsDates(unittest.TestCase):
+    
+    def test_search(self):
+        """
+        Tests class Dates from Util module
+        """
+
+        date_obj = utils.Dates(date(2021, 7, 12))
+        quarter_end = date_obj.previous_quarter_end_date
+        self.assertIsInstance(quarter_end, date, msg="Wrong return type for previous_quarter_end_date.")
+
+        self.assertEqual(quarter_end, date(2021, 6, 30), msg=f"Expected date to quarter end of 2021-7-12 is wrong:{quarter_end}")
 
 if __name__ == '__main__':
     unittest.main()

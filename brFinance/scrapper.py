@@ -5,11 +5,9 @@ import urllib.request
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.parse import urljoin
-from fake_useragent import UserAgent
+
 from logging import exception
 import os
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium import webdriver
 from re import findall
 from datetime import datetime, timedelta
 import lxml.html as LH
@@ -17,9 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import time
-# from anticaptchaofficial.recaptchav2proxyless import *
 from selenium.webdriver.support.ui import WebDriverWait
-#from sqlalchemy import create_engine
 import warnings
 import string
 import re
@@ -28,7 +24,9 @@ import requests
 import glob
 import time
 import os
-import platform
+
+import brFinance.utils as utils
+
 ssl._create_default_https_context = ssl._create_unverified_context
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -39,7 +37,7 @@ class SearchENET:
     Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx according to the input parameters
     """
 
-    def __init__(self, cod_cvm: int = None, category: int = None, driver: webdriver = None):
+    def __init__(self, cod_cvm: int = None, category: int = None, driver: utils.webdriver = None):
         self.driver = driver
         
         # self.cod_cvm_dataframe = self.cod_cvm_list()
@@ -57,8 +55,9 @@ class SearchENET:
         """
         Returns a dataframe of all CVM codes and Company names availble at https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx
         """
+
         if self.driver is None:
-            driver = iniciarChromeDriver()
+            driver = utils.Browser.run_chromedriver()
         else:
             driver=self.driver
         driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
@@ -113,7 +112,7 @@ class SearchENET:
         option_text = str(self.category)
         
         if self.driver is None:
-            driver = iniciarChromeDriver()
+            driver = utils.Browser.run_chromedriver()
         else:
             driver=self.driver
         
@@ -230,7 +229,7 @@ class SearchENET:
 
 @dataclass
 class FinancialReport:
-    def __init__(self, link: str, driver: webdriver = None):
+    def __init__(self, link: str, driver: utils.webdriver = None):
         self.link = link
         self.driver = driver
 
@@ -245,7 +244,7 @@ class FinancialReport:
         link = self.link
 
         if self.driver is None:
-            driver = iniciarChromeDriver()
+            driver = utils.Browser.run_chromedriver()
         else:
             driver=self.driver
 
@@ -359,7 +358,6 @@ class FinancialReport:
 class Company:
     def __init__(self, cod_cvm: int):
         self.cod_cvm = cod_cvm
-        self.reports = self.get_reports()
 
 
     def obtemCompCapitalSocial(self):
@@ -372,8 +370,9 @@ class Company:
         self.dadosCadastrais = listaCodCVM.to_dict('r')
 
 
-    def get_reports(self) -> Dict:
-        driver = iniciarChromeDriver()
+    @property
+    def reports(self) -> List:
+        driver = utils.Browser.run_chromedriver()
         search_anual_reports = SearchENET(cod_cvm=21610, category=21, driver=driver).search
         search_quarter_reports = SearchENET(cod_cvm=21610, category=39, driver=driver).search
         search_reports_result = search_anual_reports.append(search_quarter_reports)
@@ -385,123 +384,6 @@ class Company:
         driver.quit()
 
         return reports
-
-
-def getHTML(url):
-    print(url)
-
-    ua = UserAgent()
-    print(str(ua.chrome))
-    headers = {
-        'User-Agent': str(ua.chrome)}
-    html_content = ""
-    while True:
-        try:
-            html_content = requests.get(
-                url, headers=headers, timeout=5, verify=False).content.decode("utf8")
-            break
-        except:
-            print("Tentando Novamente...")
-            continue
-
-    return html_content
-
-
-# def to_alchemy(df, table, connect, chunk=True):
-#     """
-#     Using a dummy table to test this call library
-#     """
-#     if chunk:
-#         try:
-#             engine = create_engine(connect)
-#             df.to_sql(
-#                 table,
-#                 con=engine,
-#                 index=False,
-#                 if_exists='append'
-#             )
-#             print(table + " inserido no banco com sucesso!")
-#         except Exception as exp:
-#             if "duplicate key value violates unique constraint" in str(exp):
-#                 print("Entrada já existe.")
-#             else:
-#                 print(exp)
-#     else:
-#         engine = create_engine(connect)
-#         for index, row in enumerate(df.index):
-#             print(index)
-#             try:
-#                 dfAUX = df.loc[df.index == index]
-#                 dfAUX.to_sql(
-#                     table,
-#                     con=engine,
-#                     index=False,
-#                     if_exists='append'
-#                 )
-#                 print(table + " inserido no banco com sucesso!")
-#             except Exception as exp:
-#                 if "duplicate key value violates unique constraint" in str(exp):
-#                     print("Entrada já existe.")
-#                 else:
-#                     print(exp)
-
-
-# def from_alchemy(table, connect):
-#     """
-#     Using a dummy table to test this call library
-#     """
-#     engine = create_engine(connect)
-#     try:
-#         df = pd.read_sql_table(table,
-#                                con=engine)
-#         print(table + " lido com sucesso!")
-#         return df
-#     except Exception as exp:
-#         if "duplicate key value violates unique constraint" in str(exp):
-#             print("Entrada já existe.")
-#         else:
-#             print(exp)
-
-
-def iniciarChromeDriver(hidden: bool=True) -> webdriver:
-    """
-    Instantiate a webdriver object with different settings depending of OS you are using
-    """
-
-    os.environ['WDM_LOG_LEVEL'] = '0'
-    system = str(platform.system())
-    
-    if system == "Windows" or system == "Darwin":
-        # Options for windows
-        options = webdriver.ChromeOptions()
-        options.add_argument('--no-sandbox')
-        if hidden:
-            options.add_argument("--headless")
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("--disable-blink-features")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--incognito")
-        options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
-        root = os.path.dirname(os.path.abspath(__file__))
-        prefs = {"download.default_directory": root + "/downloads"}
-        options.add_experimental_option("prefs", prefs)
-
-        driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-
-    else:
-        # Options for linux
-        options = webdriver.ChromeOptions()
-        options.add_argument('--no-sandbox')
-        options.add_argument("--headless")
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("--disable-blink-features")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--incognito")
-        options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
-
-        driver = webdriver.Chrome(options=options)
-
-    return driver
 
 
 def obtemDadosCadastraisCVM(compAtivas=True, codCVM=False):
@@ -634,25 +516,9 @@ def obtemCodCVM():
     return tableDados
 
 
-def download_wait(path_to_downloads):
-    """
-    Waits all Chrome download files (.crdownload) in a folder be done before continues
-    """
-    seconds = 0
-    dl_wait = True
-    while dl_wait and seconds < 20:
-        time.sleep(1)
-        dl_wait = False
-        for fname in os.listdir(path_to_downloads):
-            if fname.endswith('.crdownload'):
-                dl_wait = True
-        seconds += 1
-    return seconds
-
-
 def obter_indices_anbima(dataIni, dataFim):
     link = "https://www.anbima.com.br/informacoes/ima/ima-sh.asp"
-    driver = iniciarChromeDriver(system="Windows")
+    driver = run_chromedriver(system="Windows")
     #dataIni = datetime.now().strftime("%d%m%Y")
     dataIni = datetime.strptime(dataIni, '%d/%m/%Y')
     dataFim = datetime.strptime(dataFim, '%d/%m/%Y')
@@ -739,16 +605,5 @@ def obter_cotacao_moeda(startDate, endDate, codMoeda="61"):
 
     return dfMoeda.sort_index()
 
-
-def get_closer_quarter_date(date: datetime) -> datetime:
-    from datetime import datetime
-    import math
-    from dateutil.relativedelta import relativedelta # requires python-dateutil
-
-    start_of_quarter = datetime(year=datetime.now().year, month=((math.floor(((datetime.now().month - 1) / 3) + 1) - 1) * 3) + 1, day=1)
-
-    end_of_quarter = start_of_quarter + relativedelta(months=3, seconds=-1)
-
-    return end_of_quarter
 
 

@@ -136,10 +136,10 @@ We encourage you to have a look at our Example.ipynb where you will find a quick
 This package gets data from the CVM website that is periodically updated.
 [![Method to get the CVM codes and company names available.][b3]](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
-After importing the package you can create a new Company object by providing the company CVM code (cod_cvm):
+After importing the package you can create a new Company object by providing the company CVM code:
 ![Creating a new object to get Petrobras' financial data. The package will start the web scraping process (It takes a while...).][instatiate]
 
-Once you have instatiated the Company object you can access its attributes. The reports attribute is a list of dicts with all financial statements available organized by reference date:
+Once you have instatiated the Company object you can access its attributes. The "reports" attribute is a list of dicts with all financial statements available organized by reference date:
 
 ![Petrobras' Income Statement dataframe (DRE)][dre]
 
