@@ -13,6 +13,9 @@ import brFinance.utils as utils
 from datetime import date
 
 class TestSearchENET(unittest.TestCase):
+    """
+    tests for class SearchENET from module scrapper
+    """
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -76,6 +79,9 @@ class TestSearchENET(unittest.TestCase):
 
 
 class TestUtilsDates(unittest.TestCase):
+    """
+    tests for class Dates from module utils
+    """
     
     def test_search(self):
         """

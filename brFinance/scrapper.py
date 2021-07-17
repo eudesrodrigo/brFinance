@@ -377,9 +377,10 @@ class Company:
         search_quarter_reports = SearchENET(cod_cvm=21610, category=39, driver=driver).search
         search_reports_result = search_anual_reports.append(search_quarter_reports)
 
-        reports = []
+        reports = {}
         for index, report_info in search_reports_result.iterrows():
-            reports.append(FinancialReport(link=report_info["linkView"], driver=driver).financial_reports)
+            report_obj = FinancialReport(link=report_info["linkView"], driver=driver).financial_reports
+            reports[report_obj["ref_date"]] = report_obj["reports"]
         
         driver.quit()
 
