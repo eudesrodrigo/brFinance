@@ -140,7 +140,19 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+We encourage you to have a look at our Example.ipynb where you will find a quick explanation on how to instatiate a company object and get the data available. 
+After importing the package you can create a new Company object providing the company CVM code (cod_cvm):
+
+[![Creating a new object to get Petrobras' financial data. The package will start the web scraping process.][instatiate]]
+
+In case you don't now the CVM code for a company you can get dataframe using the class SearchENET:
+
+[![Method to get the CVM codes and company names available.][cod_cvm_list]]
+
+After importing the package you can create a new Company object providing the company CVM code:
+
+guide to better understand what DVC is and how it can fit your scenarios.
+
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
@@ -176,15 +188,15 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Your Name - [@eudesrodrigo](https://twitter.com/eudesrodrigo) - eudesrodrigo@outlook.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/eudesrodrigo/brFinance](https://github.com/eudesrodrigo/brFinance)
 
 
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 * [Img Shields](https://shields.io)
 * [Choose an Open Source License](https://choosealicense.com)
 * [GitHub Pages](https://pages.github.com)
@@ -214,4 +226,5 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [license-url]: https://github.com/eudesrodrigo/brFinance/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/eudesrodrigo
-[product-screenshot]: images/screenshot.png
+[instatiate]: images/image-1.png
+[cod_cvm_list]: images/image-2.png
