@@ -95,7 +95,6 @@ class TestUtilsDates(unittest.TestCase):
         self.assertEqual(quarter_end, date(2021, 6, 30), msg=f"Expected date to quarter end of 2021-7-12 is wrong:{quarter_end}")
 
 if __name__ == '__main__':
-    petrobras = scraper.Company(cod_cvm=9512).reports
     unittest.main()
     
     
