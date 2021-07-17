@@ -121,20 +121,10 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. pip install git+git://github.com/eudesrodrigo/brFinance
-2. Clone the repo
+1. Install the package
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   pip install git+git://github.com/eudesrodrigo/brFinance
    ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```JS
-   const API_KEY = 'ENTER YOUR API';
-   ```
-
 
 
 <!-- USAGE EXAMPLES -->
@@ -143,7 +133,7 @@ This is an example of how to list things you need to use the software and how to
 We encourage you to have a look at our Example.ipynb where you will find a quick explanation on how to instatiate a company object and get the data available. 
 
 This package gets data from the CVM website that is periodically updated.
-![Method to get the CVM codes and company names available.][cod_cvm_list](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
+[![Method to get the CVM codes and company names available.][b3]](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
 After importing the package you can create a new Company object providing the company CVM code (cod_cvm):
 ![Creating a new object to get Petrobras' financial data. The package will start the web scraping process (It takes a while...).][instatiate]
