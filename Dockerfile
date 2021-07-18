@@ -1,6 +1,6 @@
 # Setup image with chromedriver and all the necessary packages to run this package
 
-FROM python:3.9
+FROM python:3.8
 
 WORKDIR /package
 
@@ -8,10 +8,7 @@ WORKDIR /package
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-RUN dpkg --print-architecture
-
 # Update the repositories and Install dependencies
-
 RUN apt-get -yqq update && \
     apt-get -yqq install gnupg2 && \
     apt-get -yqq install curl unzip && \
@@ -41,14 +38,10 @@ ARG CHROMEDRIVER_VERSION="89.0.4389.23"
 RUN wget http://170.210.201.179/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_90.0.4430.212-1_amd64.deb
 RUN apt install ./google-chrome-stable_90.0.4430.212-1_amd64.deb
 
-
 # Install Chrome WebDriver
-# Installing Unzip
 RUN apt-get install -yqq unzip
-# Download the Chrome Driver
 RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
-#ENV DISPLAY=:99
 
 # Source code copy
 COPY . .
