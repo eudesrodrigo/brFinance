@@ -39,7 +39,7 @@
     <!--a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
     <br /-->
     <br />
-    <a href="https://github.com/eudesrodrigo/brFinance">View Demo</a>
+    <a href="https://github.com/eudesrodrigo/brFinance/blob/master/Example.ipynb">View Demo</a>
     ·
     <a href="https://github.com/eudesrodrigo/brFinance/issues">Report Bug</a>
     ·
@@ -79,8 +79,6 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 brFinance is a web scraping package to simplify access to financial data. It provides data from various sources such as CVM (brazilian equivelent of SEC), B3 (Brazilian stock exchange), Banco Central (brazilian equivalent of FED), ANBIMA, etc.
 
@@ -131,7 +129,7 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 ## Brazilian companies data (Quarter and Anual reports)
-We encourage you to have a look at our Example.ipynb where you will find a quick explanation on how to instatiate a company object and get the data available. 
+We encourage you to have a look at our [Example.ipynb](https://github.com/eudesrodrigo/brFinance/blob/master/Example.ipynb) where you will find a quick explanation on how to instatiate a company object and get the data available. 
 
 This package gets data from the CVM website that is periodically updated.
 [![Method to get the CVM codes and company names available.][b3]](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
