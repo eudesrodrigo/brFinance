@@ -375,22 +375,23 @@ class Company:
     @property
     def reports(self) -> List:
         driver = utils.Browser.run_chromedriver()
-        search_anual_reports = SearchENET(cod_cvm=21610, category=21, driver=driver).search
-        search_quarter_reports = SearchENET(cod_cvm=21610, category=39, driver=driver).search
+        search_anual_reports = SearchENET(cod_cvm=self.cod_cvm, category=21, driver=driver).search
+        search_quarter_reports = SearchENET(cod_cvm=self.cod_cvm, category=39, driver=driver).search
         search_reports_result = search_anual_reports.append(search_quarter_reports)
 
         reports = {}
         for index, report_info in search_reports_result.iterrows():
             
-            # Create folder and save reports locally
             m = re.search(r"(?<=\Documento=)(.*?)(?=\&)", report_info['linkView'])
             if m:
                 document_number = m.group(1)
+            
+            # Create folder and save reports locally
             path_save_reports = f'{os.getcwd()}/reports'
-            utils.File.create_folder(path_save_reports)
             report_file = f'{path_save_reports}/{document_number}.plk'
+            utils.File.create_folder(path_save_reports)
 
-            # Check if report is available locally, otherwise download it.
+            # Check if report is available locally, otherwise scrape it.
             if utils.File.check_exist(report_file):
                 with open(report_file, 'rb') as load_report:
                     report_obj = pickle.load(load_report)
