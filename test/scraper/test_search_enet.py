@@ -1,16 +1,16 @@
 import unittest
 import sys
-sys.path.append('../')
 import os
-current_dir = os.path.dirname(os.path.realpath(__file__))
-working_dir = os.path.join(current_dir , "..")
-import sys
-sys.path.append(working_dir)
-import brFinance.scraper as scraper
 from pandas import DataFrame, Index
 
-import brFinance.utils as utils
-from datetime import date
+from brFinance.utils.browser import Browser
+from brFinance.scraper.search_enet import SearchENET
+
+sys.path.append('../')
+current_dir = os.path.dirname(os.path.realpath(__file__))
+working_dir = os.path.join(current_dir , "..")
+sys.path.append(working_dir)
+
 
 class TestSearchENET(unittest.TestCase):
     """
@@ -28,8 +28,8 @@ class TestSearchENET(unittest.TestCase):
 
 
     def setUp(self):
-        self.driver = utils.Browser.run_chromedriver()
-        self.search_enet_object = scraper.SearchENET(cod_cvm=21610, category=21, driver=self.driver)
+        self.driver = Browser.run_chromedriver()
+        self.search_enet_object = SearchENET(cod_cvm=21610, category=21, driver=self.driver)
 
 
     def tearDown(self) -> None:
@@ -69,33 +69,10 @@ class TestSearchENET(unittest.TestCase):
     def test_assert_raises(self):
 
         # Test if raises exception for invalid CVM code
-        self.assertRaises(ValueError, scraper.SearchENET, cod_cvm=2, category=21)
+        self.assertRaises(ValueError, SearchENET, cod_cvm=2, category=21)
 
 
         # Test if raises exception for invalid category
-        self.assertRaises(ValueError, scraper.SearchENET, cod_cvm=21610, category=5000)
+        self.assertRaises(ValueError, SearchENET, cod_cvm=21610, category=5000)
         # Tests method get_search_results result for wrong category type (30 does not exist)
         #self.assertIsInstance(search_enet_object.get_search_results(categoria="30"), DataFrame, msg="wait_load returned less than 0 for tabela_resultados.")
-
-
-class TestUtilsDates(unittest.TestCase):
-    """
-    tests for class Dates from module utils
-    """
-    
-    def test_previous_quarter_end_date(self):
-        """
-        Tests method previous_quarter_end_date
-        """
-
-        date_obj = utils.Dates(date(2021, 7, 12))
-        quarter_end = date_obj.previous_quarter_end_date
-        self.assertIsInstance(quarter_end, date, msg="Wrong return type for previous_quarter_end_date.")
-
-        self.assertEqual(quarter_end, date(2021, 6, 30), msg=f"Return date to previous quarter end of 2021-7-12 is wrong:{quarter_end}")
-
-
-if __name__ == '__main__':
-    unittest.main()
-    
-    
