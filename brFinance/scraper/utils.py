@@ -232,3 +232,14 @@ def obter_cotacao_moeda(startDate, endDate, codMoeda="61"):
         dfMoeda["Venda"].astype(str).str.replace(',', '.'))
 
     return dfMoeda.sort_index()
+
+def cota_fundos(cnpj):
+    columns = ['cota','data','patrimonio','cotistas']
+    dfCotas =  pd.DataFrame([],columns=columns)
+    try:
+        dfCotas = pd.read_json("https://assets-comparacaodefundos.s3-sa-east-1.amazonaws.com/cvm/{cnpj}".format(cnpj=cnpj))
+        dfCotas.columns = columns
+        dfCotas = dfCotas.set_index(['data'])
+    except:
+        print('Nenhum fundo encontrado para o CNPJ: {cnpj}'.format(cnpj=cnpj))
+    return dfCotas
