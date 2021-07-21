@@ -1,9 +1,8 @@
 import unittest
 import sys
 import os
-from pandas import DataFrame, Index
+from pandas import DataFrame
 
-from brFinance.utils.browser import Browser
 from brFinance.scraper.search_enet import SearchENET
 
 sys.path.append('../')
@@ -28,12 +27,10 @@ class TestSearchENET(unittest.TestCase):
 
 
     def setUp(self):
-        self.driver = Browser.run_chromedriver()
-        self.search_enet_object = SearchENET(cod_cvm=21610, category=21, driver=self.driver)
+        self.search_enet_object = SearchENET(cod_cvm=21610, category=21)
 
 
     def tearDown(self) -> None:
-        self.driver.quit()
         return super().tearDown()
 
 
@@ -64,15 +61,15 @@ class TestSearchENET(unittest.TestCase):
         #Tests if search dataframe has values
         results_counter = len(self.search_enet_object.search)
         self.assertGreater(results_counter, 0, msg="No results found to cod_cvm = 21610 and category=21")
-    
+
 
     def test_assert_raises(self):
 
         # Test if raises exception for invalid CVM code
-        self.assertRaises(ValueError, SearchENET, cod_cvm=2, category=21)
+        self.assertRaises(AssertionError, SearchENET, cod_cvm=2, category=21)
 
 
         # Test if raises exception for invalid category
-        self.assertRaises(ValueError, SearchENET, cod_cvm=21610, category=5000)
+        self.assertRaises(AssertionError, SearchENET, cod_cvm=21610, category=5000)
         # Tests method get_search_results result for wrong category type (30 does not exist)
         #self.assertIsInstance(search_enet_object.get_search_results(categoria="30"), DataFrame, msg="wait_load returned less than 0 for tabela_resultados.")
