@@ -16,11 +16,46 @@ class SearchENET:
     """
     Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx according to the input
     parameters
+
+    ...
+
+    Attributes
+    ----------
+    SEARCH_CATEGORY_LIST : list
+        List of categories code accepted by the class
+    DELAY : int
+        Timeout (in seconds) for page to load
+    cod_cvm : int
+        CVM company code
+    category : int
+        Category code
+
+    Methods
+    -------
+    cod_cvm_list()
+        Returns a dataframe of all CVM codes and Company names
+    search()
+        Returns dataframe of search results including cod_cvm, report's url, etc.
     """
+
     SEARCH_CATEGORY_LIST = [21, 39]
     DELAY = 10
 
     def __init__(self, cod_cvm: int, category: int):
+        """
+        Parameters
+        ----------
+        cod_cvm : int
+            CVM company code
+        category : int
+            Category code
+
+        Raises
+        ------
+        AssertionError
+            If cvm code does not exist or an invalid category code is passed
+        """
+
         assert self._check_cod_cvm_exist(cod_cvm), "CVM code not found"
         assert self._check_category_exist(category), \
             f"Invalid category value. Available categories are: {SearchENET.SEARCH_CATEGORY_LIST} "
@@ -28,24 +63,49 @@ class SearchENET:
         self.cod_cvm = cod_cvm
         self.category = category
 
-    def _check_cod_cvm_exist(self, cod_cvm) -> bool:
+    def _check_cod_cvm_exist(self, cod_cvm: int) -> bool:
+        """Check if CVM code exists
+
+        Parameters
+        ----------
+        cod_cvm : int
+            CVM company code
+
+        Returns
+        -------
+        bool
+            True if cvm code exist, otherwise False
         """
-        Check if CVM code exists
-        """
+
         codigos_cvm_available = self.cod_cvm_list()
         cod_cvm_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in codigos_cvm_available['codCVM'].values]
         return cod_cvm_exists
 
-    def _check_category_exist(self, category) -> bool:
+    def _check_category_exist(self, category: int) -> bool:
+        """Check if Category code is supported by brFinance
+
+        Parameters
+        ----------
+        category : int
+            Category code
+
+        Returns
+        -------
+        bool
+            True if category code is accepted, otherwise False
         """
-        Check if Category code is supported by brFinance
-        """
+
         return category in SearchENET.SEARCH_CATEGORY_LIST
 
     def cod_cvm_list(self) -> pd.DataFrame:
+        """Returns a dataframe of all CVM codes and Company names
+
+        Returns
+        -------
+        pandas.Dataframe
+            Dataframe of all CVM codes and company names
         """
-        Returns a dataframe of all CVM codes and Company names
-        """
+
         driver = Browser.run_chromedriver()
 
         driver.get("https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
@@ -70,8 +130,12 @@ class SearchENET:
 
     @property
     def search(self) -> pd.DataFrame:
-        """
-        Returns dataframe of search results including cod_cvm, report's url, etc.
+        """Returns dataframe of search results including cod_cvm, report's url, etc.
+
+        Returns
+        -------
+        pandas.Dataframe
+            Dataframe of search results
         """
         driver = Browser.run_chromedriver()
         data_inicial = '01012010'
