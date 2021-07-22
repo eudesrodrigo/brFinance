@@ -39,7 +39,7 @@ class SearchENET:
     """
 
     SEARCH_CATEGORY_LIST = [21, 39]
-    DELAY = 10
+    DELAY = 20
 
     def __init__(self, cod_cvm: int, category: int):
         """
