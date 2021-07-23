@@ -1,5 +1,6 @@
 import unittest
 from brFinance.scraper.search_enet import SearchENET
+from brFinance.utils.browser import Browser
 from pandas import DataFrame
 
 
@@ -17,7 +18,8 @@ class TestSearchENET(unittest.TestCase):
         return super().setUpClass()
 
     def setUp(self):
-        self.search_enet_object = SearchENET(cod_cvm=21610, category=21)
+        self.driver = Browser.run_chromedriver()
+        self.search_enet_object = SearchENET(cod_cvm=21610, category=21, driver=self.driver)
         self.search_result = self.search_enet_object.search
 
     def tearDown(self) -> None:

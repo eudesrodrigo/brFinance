@@ -5,6 +5,7 @@ import lxml.html as LH
 from brFinance.utils.browser import Browser
 from dataclasses import dataclass
 from datetime import datetime
+from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -41,7 +42,7 @@ class SearchENET:
     SEARCH_CATEGORY_LIST = [21, 39]
     DELAY = 20
 
-    def __init__(self, cod_cvm: int, category: int):
+    def __init__(self, cod_cvm: int, category: int, driver: webdriver = None):
         """
         Parameters
         ----------
@@ -49,12 +50,16 @@ class SearchENET:
             CVM company code
         category : int
             Category code
+        driver : webdriver
+            Optional parameter for webdriver created by user
 
         Raises
         ------
         AssertionError
             If cvm code does not exist or an invalid category code is passed
         """
+
+        self.driver = driver
 
         assert self._check_cod_cvm_exist(cod_cvm), "CVM code not found"
         assert self._check_category_exist(category), \
@@ -106,7 +111,10 @@ class SearchENET:
             Dataframe of all CVM codes and company names
         """
 
-        driver = Browser.run_chromedriver()
+        if self.driver is None:
+            driver = Browser.run_chromedriver()
+        else:
+            driver = self.driver
 
         driver.get("https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
 
@@ -124,7 +132,8 @@ class SearchENET:
         df = pd.DataFrame(list(zip(list_cod_cvm, list_nome_emp)), columns=['codCVM', 'nome_empresa'])
         df['codCVM'] = pd.to_numeric(df['codCVM'])
 
-        driver.quit()
+        if self.driver is None:
+            driver.quit()
 
         return df
 
@@ -137,7 +146,12 @@ class SearchENET:
         pandas.Dataframe
             Dataframe of search results
         """
-        driver = Browser.run_chromedriver()
+
+        if self.driver is None:
+            driver = Browser.run_chromedriver()
+        else:
+            driver = self.driver
+
         data_inicial = '01012010'
         data_final = datetime.today().strftime('%d%m%Y')
         option_text = str(self.category)
@@ -222,6 +236,7 @@ class SearchENET:
         # Deleting Actions column
         del df["Ações"]
 
-        driver.quit()
+        if self.driver is None:
+            driver.quit()
 
         return df
