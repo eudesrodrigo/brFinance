@@ -240,6 +240,8 @@ class SearchENET:
                 companies_result_id = "hdnEmpresas"
                 wait.until(EC.presence_of_element_located((By.ID, companies_result_id)))
                 html_data = driver.find_element_by_id(companies_result_id).get_attribute("value")
+                if len(html_data) == 0:
+                    continue
                 break
             except TimeoutException:
                 print("[LOG]: Waiting CVM codes")
