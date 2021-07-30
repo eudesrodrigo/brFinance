@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Tuple, Any
 
@@ -14,63 +14,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from brFinance.utils.browser import Browser
 
 
-@dataclass
-class SearchENET:
+class Search(ABC):
     """
-    Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx according to the input
-    parameters
-
-    ...
-
-    Attributes
-    ----------
-    SEARCH_CATEGORY_LIST : list
-        List of categories code accepted by the class
-    DELAY : int
-        Timeout (in seconds) for page to load
-    cod_cvm : int
-        CVM company code
-    category : int
-        Category code
-
-    Methods
-    -------
-    cod_cvm_list()
-        Returns a dataframe of all CVM codes and Company names
-    search()
-        Returns dataframe of search results including cod_cvm, report's url, etc.
+    Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx
     """
 
-    SEARCH_CATEGORY_LIST = [21, 39]
-    DELAY = 1
+    DELAY: int = 1
+    cvm_code_df: pd.DataFrame = None
+    cvm_code: int = None
+    driver: webdriver = None
 
-    def __init__(self, cod_cvm: int, category: int, driver: webdriver = None):
-        """
-        Parameters
-        ----------
-        cod_cvm : int
-            CVM company code
-        category : int
-            Category code
-        driver : webdriver
-            Optional parameter for webdriver created by user
-
-        Raises
-        ------
-        AssertionError
-            If cvm code does not exist or an invalid category code is passed
-        """
-
-        self.driver = driver
-
-        assert self._check_cod_cvm_exist(cod_cvm), "CVM code not found"
-        assert self._check_category_exist(category), \
-            f"Invalid category value. Available categories are: {SearchENET.SEARCH_CATEGORY_LIST} "
-
-        self.cod_cvm = cod_cvm
-        self.category = category
-
-    def _check_cod_cvm_exist(self, cod_cvm: int) -> bool:
+    def check_cvm_code_exists(self, cod_cvm: int) -> bool:
         """Check if CVM code exists
 
         Parameters
@@ -84,25 +38,9 @@ class SearchENET:
             True if cvm code exist, otherwise False
         """
 
-        codigos_cvm_available = self.cod_cvm_list()
-        cod_cvm_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in codigos_cvm_available['codCVM'].values]
-        return cod_cvm_exists
-
-    def _check_category_exist(self, category: int) -> bool:
-        """Check if Category code is supported by brFinance
-
-        Parameters
-        ----------
-        category : int
-            Category code
-
-        Returns
-        -------
-        bool
-            True if category code is accepted, otherwise False
-        """
-
-        return category in SearchENET.SEARCH_CATEGORY_LIST
+        cvm_codes_available = self.get_cvm_codes()
+        cvm_code_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in cvm_codes_available['codCVM'].values]
+        return cvm_code_exists
 
     def _instantiate_driver(self) -> webdriver:
         """Returns a driver object
@@ -113,12 +51,11 @@ class SearchENET:
             webdriver created for searching
         """
 
-        if self.driver is None:
-            return Browser.run_chromedriver()
+        if self.driver is None: return Browser.run_chromedriver()
 
         return self.driver
 
-    def _extract_data_from_search(self, initial_date: str, final_date: str) -> Tuple[pd.DataFrame, Any]:
+    def _fetch_data(self, cvm_code: int, category: int, initial_date: str, final_date: str) -> Tuple[pd.DataFrame, Any]:
         """Returns dataframe and html document from search
 
         Parameters
@@ -137,9 +74,9 @@ class SearchENET:
         """
 
         driver = self._instantiate_driver()
-        wait = WebDriverWait(driver, SearchENET.DELAY)
+        wait = WebDriverWait(driver, Search.DELAY)
 
-        driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx?codigoCVM={self.cod_cvm}")
+        driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx?codigoCVM={cvm_code}")
 
         # Wait until page is loaded and click Categories button
         while True:
@@ -155,7 +92,7 @@ class SearchENET:
         while True:
             try:
                 category_selection_xpath = f"//html/body/form[1]/div[3]/div/fieldset/div[""5]/div[1]/div/div/ul/li[" \
-                                           f"@data-option-array-index='{self.category}']"
+                                           f"@data-option-array-index='{category}']"
                 wait.until(EC.presence_of_element_located((By.XPATH, category_selection_xpath)))
                 driver.find_element_by_xpath(category_selection_xpath).click()
                 break
@@ -215,67 +152,14 @@ class SearchENET:
         table = LH.fromstring(table_html)
         df = pd.read_html(table_html)[0]
 
-        if self.driver is None:
-            driver.quit()
+        if self.driver is None: driver.quit()
 
         return df, table
 
-    def cod_cvm_list(self) -> pd.DataFrame:
-        """Returns a dataframe of all CVM codes and Company names
-
-        Returns
-        -------
-        pandas.Dataframe
-            Dataframe of all CVM codes and company names
-        """
-
-        driver = self._instantiate_driver()
-        wait = WebDriverWait(driver, SearchENET.DELAY)
-
-        driver.get("https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
-
-        # Wait until page is loaded and get all companies data
-        while True:
-            try:
-                companies_result_id = "hdnEmpresas"
-                wait.until(EC.presence_of_element_located((By.ID, companies_result_id)))
-                html_data = driver.find_element_by_id(companies_result_id).get_attribute("value")
-                if len(html_data) == 0:
-                    continue
-                break
-            except TimeoutException:
-                print("[LOG]: Waiting CVM codes")
-
-        # Selecting company name and CVM code
-        list_cod_cvm = re.findall(r"(?<=_)(.*?)(?=\')", html_data)
-        list_nome_emp = re.findall(r"(?<=-)(.*?)(?=\')", html_data)
-
-        # Adding selected information to a Dataframe
-        df = pd.DataFrame(list(zip(list_cod_cvm, list_nome_emp)), columns=['codCVM', 'nome_empresa'])
-        df['codCVM'] = pd.to_numeric(df['codCVM'])
-
-        if self.driver is None:
-            driver.quit()
-
-        return df
-
-    @property
-    def search(self) -> pd.DataFrame:
-        """Returns dataframe of search results including cod_cvm, report's url, etc.
-
-        Returns
-        -------
-        pandas.Dataframe
-            Dataframe of search results
-        """
-
-        initial_date = '01012010'
-        final_date = datetime.today().strftime('%d%m%Y')
-
-        df, table = self._extract_data_from_search(initial_date, final_date)
+    def _clean_data(self, df, table):
 
         # Cleaning data for CVM code and reference date
-        df["Código CVM"] = self.cod_cvm
+        df["Código CVM"] = self.cvm_code
         df['Data Referência'] = df['Data Referência'].str.split(' ', 1).str[1]
         df['Data Referência'] = pd.to_datetime(df["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
@@ -306,5 +190,127 @@ class SearchENET:
 
         # Deleting Actions column
         del df["Ações"]
+
+        return df
+
+    def get_cvm_codes(self) -> pd.DataFrame:
+        """Returns a dataframe of all CVM codes and Company names
+
+        Returns
+        -------
+        pandas.Dataframe
+            Dataframe of all CVM codes and company names
+        """
+        if Search.cvm_code_df is not None: return Search.cvm_code_df
+
+        driver = self._instantiate_driver()
+        wait = WebDriverWait(driver, Search.DELAY)
+
+        driver.get("https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
+
+        # Wait until page is loaded and get all companies data
+        while True:
+            try:
+                companies_result_id = "hdnEmpresas"
+                wait.until(EC.presence_of_element_located((By.ID, companies_result_id)))
+                html_data = driver.find_element_by_id(companies_result_id).get_attribute("value")
+                if len(html_data) == 0:
+                    continue
+                break
+            except TimeoutException:
+                print("[LOG]: Waiting CVM codes")
+
+        # Selecting company name and CVM code
+        list_cod_cvm = re.findall(r"(?<=_)(.*?)(?=\')", html_data)
+        list_nome_emp = re.findall(r"(?<=-)(.*?)(?=\')", html_data)
+
+        # Adding selected information to a Dataframe
+        df = pd.DataFrame(list(zip(list_cod_cvm, list_nome_emp)), columns=['codCVM', 'nome_empresa'])
+        df['codCVM'] = pd.to_numeric(df['codCVM'])
+
+        Search.cvm_code_df = df
+
+        if self.driver is None: driver.quit()
+
+        return Search.cvm_code_df
+
+    @abstractmethod
+    def search(self, cvm_code: int, initial_date: str, final_date: str) -> pd.DataFrame:
+        """
+        Returns dataframe of search results including cod_cvm, report's url, etc.
+
+        Parameters
+        ----------
+        cvm_code : int
+            CVM company code
+        initial_date: str
+            Ex: 01012010 for 01/01/2010
+        final_date: str
+            Ex 30072021 for 30/07/2021
+
+        Returns
+        -------
+        pandas.Dataframe
+            Dataframe of search results
+        """
+        pass
+
+
+class SearchDFP(Search):
+    """
+    Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx for category
+    "Demonstração Financeira Padronizada"
+    """
+
+    def __init__(self, driver: webdriver = None):
+        """
+        Parameters
+        ----------
+        driver : webdriver
+            Optional parameter for webdriver created by user
+        """
+
+        self.driver = driver
+        self.category = 21
+
+    def search(self,
+               cvm_code: int,
+               initial_date: str = '01012010',
+               final_date: str = datetime.today().strftime('%d%m%Y')) -> pd.DataFrame:
+        assert self.check_cvm_code_exists(cvm_code), "CVM code not found"
+
+        df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
+
+        df = self._clean_data(df, table)
+
+        return df
+
+
+class SearchITR(Search):
+    """
+    Perform webscraping on the page https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx for category
+    "Informações Trimestrais"
+    """
+
+    def __init__(self, driver: webdriver = None):
+        """
+        Parameters
+        ----------
+        driver : webdriver
+            Optional parameter for webdriver created by user
+        """
+
+        self.driver = driver
+        self.category = 39
+
+    def search(self,
+               cvm_code: int,
+               initial_date: str = '01012010',
+               final_date: str = datetime.today().strftime('%d%m%Y')) -> pd.DataFrame:
+        assert self.check_cvm_code_exists(cvm_code), "CVM code not found"
+
+        df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
+
+        df = self._clean_data(df, table)
 
         return df

@@ -1,14 +1,14 @@
-import pandas as pd
-import requests
-import os
 import glob
+import os
 import re
 import urllib.request
-from bs4 import BeautifulSoup
-from zipfile import ZipFile
-from io import BytesIO
-from urllib.parse import urljoin
 from datetime import datetime, timedelta
+from io import BytesIO
+from zipfile import ZipFile
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 from brFinance.utils.browser import Browser

@@ -1,8 +1,9 @@
-import pandas as pd
-from time import sleep
-from selenium import webdriver
 from dataclasses import dataclass
-from typing import List, Text, Dict
+from time import sleep
+from typing import Dict
+
+import pandas as pd
+from selenium import webdriver
 
 from brFinance.utils.browser import Browser
 

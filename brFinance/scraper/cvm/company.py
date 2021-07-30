@@ -1,47 +1,43 @@
-import re
 import os
 import pickle
-import pandas as pd
+import re
 from dataclasses import dataclass
-from typing import List, Text, Dict
+from typing import List
 
+from brFinance.scraper.cvm.financial_report import FinancialReport
+from brFinance.scraper.cvm.search import SearchDFP, SearchITR
+from brFinance.scraper.cvm.utils import composicao_capital_social, obtemDadosCadastraisCVM
 from brFinance.utils.browser import Browser
 from brFinance.utils.file import File
-from brFinance.scraper.financial_report import FinancialReport
-from brFinance.scraper.search_enet import SearchENET
-from brFinance.scraper.utils import composicao_capital_social, obtemDadosCadastraisCVM
 
 
 @dataclass
 class Company:
-    def __init__(self, cod_cvm: int):
-        self.cod_cvm = cod_cvm
-
+    def __init__(self, cvm_code: int):
+        self.cvm_code = cvm_code
 
     def obtemCompCapitalSocial(self):
-        self.ComposicaoCapitalSocial = composicao_capital_social(self.cod_cvm)
-
+        self.ComposicaoCapitalSocial = composicao_capital_social(self.cvm_code)
 
     def obterDadosCadastrais(self):
-        listaCodCVM = obtemDadosCadastraisCVM(self.cod_cvm)
-        listaCodCVM = listaCodCVM[listaCodCVM["CD_CVM"] == self.cod_cvm]
+        listaCodCVM = obtemDadosCadastraisCVM(self.cvm_code)
+        listaCodCVM = listaCodCVM[listaCodCVM["CD_CVM"] == self.cvm_code]
         self.dadosCadastrais = listaCodCVM.to_dict('r')
-
 
     @property
     def reports(self) -> List:
         driver = Browser.run_chromedriver()
-        search_anual_reports = SearchENET(cod_cvm=self.cod_cvm, category=21, driver=driver).search
-        search_quarter_reports = SearchENET(cod_cvm=self.cod_cvm, category=39, driver=driver).search
+        search_anual_reports = SearchDFP(driver=driver).search(self.cvm_code)
+        search_quarter_reports = SearchITR(driver=driver).search(self.cvm_code)
         search_reports_result = search_anual_reports.append(search_quarter_reports)
 
         reports = {}
         for index, report_info in search_reports_result.iterrows():
-            
+
             m = re.search(r"(?<=\Documento=)(.*?)(?=\&)", report_info['linkView'])
             if m:
                 document_number = m.group(1)
-            
+
             # Create folder and save reports locally
             path_save_reports = f'{os.getcwd()}/reports'
             report_file = f'{path_save_reports}/{document_number}.plk'
@@ -58,7 +54,7 @@ class Company:
                     pickle.dump(report_obj, save_report)
 
             reports[report_obj["ref_date"]] = report_obj["reports"]
-        
+
         driver.quit()
 
         return reports
