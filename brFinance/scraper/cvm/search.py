@@ -166,17 +166,17 @@ class Search(ABC):
         # Creating a collumn for document download link
         link_download = []
         for expression in table.xpath("//tr/td/i[2]/@onclick"):
-            data = expression.split(",")
-            num_sequencia = re.findall("(?<=\')(.*?)(?=\')", data[0])[0]
-            num_versao = re.findall("(?<=\')(.*?)(?=\')", data[1])[0]
-            num_protocolo = re.findall("(?<=\')(.*?)(?=\')", data[2])[0]
-            desc_tipo = re.findall("(?<=\')(.*?)(?=\')", data[3])[0]
-            link_download.append(f"https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
-                                 f"numSequencia={num_sequencia}&"
-                                 f"numVersao={num_versao}&"
-                                 f"numProtocolo={num_protocolo}&"
-                                 f"descTipo={desc_tipo}&"
-                                 f"CodigoInstituicao=1")
+            try:
+                data = expression.split(",")
+                sequencia, versao, protocolo, tipo = [re.findall("(?<=\')(.*?)(?=\')", d)[0] for d in data]
+                link_download.append(f"https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
+                                     f"numSequencia={sequencia}&"
+                                     f"numVersao={versao}&"
+                                     f"numProtocolo={protocolo}&"
+                                     f"descTipo={tipo}&"
+                                     f"CodigoInstituicao=1")
+            except IndexError:
+                link_download.append("Document does not have a link")
         df["linkDownload"] = link_download
 
         # Filtering for documents which Status is Active
