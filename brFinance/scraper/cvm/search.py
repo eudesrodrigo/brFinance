@@ -1,4 +1,5 @@
 import re
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Tuple, Any
@@ -6,10 +7,6 @@ from typing import Tuple, Any
 import lxml.html as LH
 import pandas as pd
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from brFinance.utils.browser import Browser
 
@@ -21,7 +18,6 @@ class Search(ABC):
 
     DELAY: int = 1
     cvm_code_df: pd.DataFrame = None
-    cvm_code: int = None
     driver: webdriver = None
 
     def check_cvm_code_exists(self, cod_cvm: int) -> bool:
@@ -74,7 +70,6 @@ class Search(ABC):
         """
 
         driver = self._instantiate_driver()
-        wait = WebDriverWait(driver, Search.DELAY)
 
         driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx?codigoCVM={cvm_code}")
 
@@ -82,72 +77,71 @@ class Search(ABC):
         while True:
             try:
                 category_button_id = 'cboCategorias_chosen'
-                wait.until(EC.presence_of_element_located((By.ID, category_button_id)))
                 driver.find_element_by_id(category_button_id).click()
                 break
-            except (TimeoutException, ElementClickInterceptedException):
+            except Exception:
                 print("[LOG]: Waiting for Categories button")
+                time.sleep(1)
 
         # Wait until page is loaded and select category from user input
         while True:
             try:
                 category_selection_xpath = f"//html/body/form[1]/div[3]/div/fieldset/div[""5]/div[1]/div/div/ul/li[" \
                                            f"@data-option-array-index='{category}']"
-                wait.until(EC.presence_of_element_located((By.XPATH, category_selection_xpath)))
                 driver.find_element_by_xpath(category_selection_xpath).click()
                 break
-            except (TimeoutException, ElementClickInterceptedException):
+            except Exception:
                 print("[LOG]: Waiting for category dropdown menu")
+                time.sleep(1)
 
         # Wait until page is loaded and click Period button
         while True:
             try:
                 period_button_xpath = "//html/body/form[1]/div[3]/div/fieldset/div[4]/div[1]/label[4]"
-                wait.until(EC.presence_of_element_located((By.XPATH, period_button_xpath)))
                 driver.find_element_by_xpath(period_button_xpath).click()
                 break
-            except (TimeoutException, ElementClickInterceptedException):
+            except Exception:
                 print("[LOG]: Waiting for period button")
+                time.sleep(1)
 
         # Wait until page is loaded and send keys for initial date
         while True:
             try:
                 period_init_id = "txtDataIni"
-                wait.until(EC.presence_of_element_located((By.ID, period_init_id)))
                 driver.find_element_by_id(period_init_id).send_keys(initial_date)
                 break
-            except TimeoutException:
+            except Exception:
                 print("[LOG]: Waiting for initial date input")
+                time.sleep(1)
 
         # Wait until page is loaded and send keys for end date
         while True:
             try:
                 period_end_id = "txtDataFim"
-                wait.until(EC.presence_of_element_located((By.ID, period_end_id)))
                 driver.find_element_by_id(period_end_id).send_keys(final_date)
                 break
-            except TimeoutException:
+            except Exception:
                 print("[LOG]: Waiting for final date input")
+                time.sleep(1)
 
         # Wait until page is loaded and click on Consult button
         while True:
             try:
                 consult_button_id = "btnConsulta"
-                wait.until(EC.presence_of_element_located((By.ID, consult_button_id)))
                 driver.find_element_by_id(consult_button_id).click()
                 break
-            except (TimeoutException, ElementClickInterceptedException):
+            except Exception:
                 print("[LOG]: Waiting for consult button")
+                time.sleep(1)
 
         # Wait html table load the results (grdDocumentos)
         while True:
             try:
-                results_xpath = "//table[@id='grdDocumentos']/tbody//tr"
-                wait.until(EC.presence_of_element_located((By.XPATH, results_xpath)))
                 table_html = str(driver.find_element_by_id('grdDocumentos').get_attribute("outerHTML"))
-                break
-            except TimeoutException:
+                if len(pd.read_html(table_html)[-1].index) > 0: break
+            except Exception:
                 print("[LOG]: Waiting for results")
+                time.sleep(1)
 
         table = LH.fromstring(table_html)
         df = pd.read_html(table_html)[0]
@@ -156,10 +150,10 @@ class Search(ABC):
 
         return df, table
 
-    def _clean_data(self, df, table):
+    def _clean_data(self, cvm_code: int, df: pd.DataFrame, table: Any) -> pd.DataFrame:
 
         # Cleaning data for CVM code and reference date
-        df["Código CVM"] = self.cvm_code
+        df["Código CVM"] = cvm_code
         df['Data Referência'] = df['Data Referência'].str.split(' ', 1).str[1]
         df['Data Referência'] = pd.to_datetime(df["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
@@ -173,10 +167,10 @@ class Search(ABC):
         link_download = []
         for expression in table.xpath("//tr/td/i[2]/@onclick"):
             data = expression.split(",")
-            num_sequencia = re.findall("(?<=\')(.*?)(?=\')", data[0])
-            num_versao = re.findall("(?<=\')(.*?)(?=\')", data[1])
-            num_protocolo = re.findall("(?<=\')(.*?)(?=\')", data[2])
-            desc_tipo = re.findall("(?<=\')(.*?)(?=\')", data[3])
+            num_sequencia = re.findall("(?<=\')(.*?)(?=\')", data[0])[0]
+            num_versao = re.findall("(?<=\')(.*?)(?=\')", data[1])[0]
+            num_protocolo = re.findall("(?<=\')(.*?)(?=\')", data[2])[0]
+            desc_tipo = re.findall("(?<=\')(.*?)(?=\')", data[3])[0]
             link_download.append(f"https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
                                  f"numSequencia={num_sequencia}&"
                                  f"numVersao={num_versao}&"
@@ -204,7 +198,6 @@ class Search(ABC):
         if Search.cvm_code_df is not None: return Search.cvm_code_df
 
         driver = self._instantiate_driver()
-        wait = WebDriverWait(driver, Search.DELAY)
 
         driver.get("https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx")
 
@@ -212,13 +205,13 @@ class Search(ABC):
         while True:
             try:
                 companies_result_id = "hdnEmpresas"
-                wait.until(EC.presence_of_element_located((By.ID, companies_result_id)))
                 html_data = driver.find_element_by_id(companies_result_id).get_attribute("value")
                 if len(html_data) == 0:
                     continue
                 break
-            except TimeoutException:
+            except Exception:
                 print("[LOG]: Waiting CVM codes")
+                time.sleep(1)
 
         # Selecting company name and CVM code
         list_cod_cvm = re.findall(r"(?<=_)(.*?)(?=\')", html_data)
@@ -281,7 +274,7 @@ class SearchDFP(Search):
 
         df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
 
-        df = self._clean_data(df, table)
+        df = self._clean_data(cvm_code, df, table)
 
         return df
 
@@ -311,6 +304,6 @@ class SearchITR(Search):
 
         df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
 
-        df = self._clean_data(df, table)
+        df = self._clean_data(cvm_code, df, table)
 
         return df
