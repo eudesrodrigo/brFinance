@@ -2,11 +2,11 @@ import unittest
 
 from pandas import DataFrame
 
-from brFinance.scraper.cvm.search import SearchDFP
+from brFinance.scraper.cvm.search import SearchITR
 from brFinance.utils.browser import Browser
 
 
-class TestSearchENET(unittest.TestCase):
+class TestSearchITR(unittest.TestCase):
     RESULTS_COLUMNS = ['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie', 'Data Referência', 'Data Entrega',
                        'Status', 'V', 'Modalidade', 'linkView', 'linkDownload']
 
@@ -20,7 +20,7 @@ class TestSearchENET(unittest.TestCase):
 
     def setUp(self):
         self.driver = Browser.run_chromedriver()
-        self.search_object = SearchDFP(driver=self.driver)
+        self.search_object = SearchITR(driver=self.driver)
         self.search_result = self.search_object.search(cvm_code=21610)
 
     def tearDown(self) -> None:
@@ -31,7 +31,7 @@ class TestSearchENET(unittest.TestCase):
                               msg="get_search_results returned does not returned a Pandas DataFrame for categoria=21.")
 
     def test_search_returns_desired_columns(self):
-        self.assertEqual(list(self.search_result.columns), TestSearchENET.RESULTS_COLUMNS,
+        self.assertEqual(list(self.search_result.columns), TestSearchITR.RESULTS_COLUMNS,
                          msg="Wrong columns in the financial_reports_search_result ")
 
     def test_search_dataframe_has_values(self):
