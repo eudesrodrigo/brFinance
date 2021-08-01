@@ -1,11 +1,12 @@
 import unittest
-from brFinance.scraper.search_enet import SearchENET
-from brFinance.utils.browser import Browser
+
 from pandas import DataFrame
 
+from brFinance.scraper.cvm.search import SearchITR
+from brFinance.utils.browser import Browser
 
-class TestSearchENET(unittest.TestCase):
 
+class TestSearchITR(unittest.TestCase):
     RESULTS_COLUMNS = ['Código CVM', 'Empresa', 'Categoria', 'Tipo', 'Espécie', 'Data Referência', 'Data Entrega',
                        'Status', 'V', 'Modalidade', 'linkView', 'linkDownload']
 
@@ -19,8 +20,8 @@ class TestSearchENET(unittest.TestCase):
 
     def setUp(self):
         self.driver = Browser.run_chromedriver()
-        self.search_enet_object = SearchENET(cod_cvm=21610, category=21, driver=self.driver)
-        self.search_result = self.search_enet_object.search
+        self.search_object = SearchITR(driver=self.driver)
+        self.search_result = self.search_object.search(cvm_code=21610)
 
     def tearDown(self) -> None:
         return super().tearDown()
@@ -30,7 +31,7 @@ class TestSearchENET(unittest.TestCase):
                               msg="get_search_results returned does not returned a Pandas DataFrame for categoria=21.")
 
     def test_search_returns_desired_columns(self):
-        self.assertEqual(list(self.search_result.columns), TestSearchENET.RESULTS_COLUMNS,
+        self.assertEqual(list(self.search_result.columns), TestSearchITR.RESULTS_COLUMNS,
                          msg="Wrong columns in the financial_reports_search_result ")
 
     def test_search_dataframe_has_values(self):
@@ -38,8 +39,4 @@ class TestSearchENET(unittest.TestCase):
 
     def test_assert_raises_for_cvm_code(self):
         # Test if raises exception for invalid CVM code
-        self.assertRaises(AssertionError, SearchENET, cod_cvm=2, category=21)
-
-    def test_assert_raises_for_category_code(self):
-        # Test if raises exception for invalid category
-        self.assertRaises(AssertionError, SearchENET, cod_cvm=21610, category=5000)
+        self.assertRaises(AssertionError, self.search_object.search, cvm_code=2)

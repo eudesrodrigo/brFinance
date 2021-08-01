@@ -1,87 +1,15 @@
+import glob
+import os
+import urllib.request
+from datetime import datetime, timedelta
+from io import BytesIO
+from zipfile import ZipFile
+
 import pandas as pd
 import requests
-import os
-import glob
-import re
-import urllib.request
-from bs4 import BeautifulSoup
-from zipfile import ZipFile
-from io import BytesIO
-from urllib.parse import urljoin
-from datetime import datetime, timedelta
 from fake_useragent import UserAgent
 
 from brFinance.utils.browser import Browser
-
-
-def obtemDadosCadastraisCVM(compAtivas=True, codCVM=False):
-    """
-    Returns a dataframe of Registration data for all Companies available at http://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv
-    """
-    url = "http://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv"
-    #s = requests.get(url).content
-    dados_cadastrais_empresas = pd.read_csv(url, sep=";", encoding="latin")
-
-    if compAtivas:
-        dados_cadastrais_empresas = dados_cadastrais_empresas[
-            dados_cadastrais_empresas["SIT"] == "ATIVO"]
-
-    if codCVM:
-        dados_cadastrais_empresas = dados_cadastrais_empresas[dados_cadastrais_empresas["CD_CVM"] == int(
-            codCVM)]
-
-    return dados_cadastrais_empresas
-
-
-def composicao_capital_social(codCVM):
-    """
-    This metodh will be deprecated
-    """
-
-    dfQuantPapeis = pd.DataFrame()
-    for cod in codCVM:
-        erro = 1
-        cod = str(cod)
-        while erro <= 3:
-            try:
-                print(cod)
-                url = "http://bvmf.bmfbovespa.com.br/pt-br/mercados/acoes/empresas/ExecutaAcaoConsultaInfoEmp.asp?CodCVM={codCVM}".format(
-                    codCVM=cod)
-
-                #
-                html_content = requests.get(url).content.decode("utf8")
-
-                tableDados = BeautifulSoup(html_content, "lxml").find(
-                    "div", attrs={"id": "accordionDados"})
-                tickers = re.findall(
-                    "'[a-z|A-Z|0-9][a-z|A-Z|0-9][a-z|A-Z|0-9][a-z|A-Z|0-9][0-9][0-9]?'", str(tableDados))
-                tickers = [ticker.replace("'", "") for ticker in tickers]
-                tickers = list(dict.fromkeys(tickers))
-
-                tickers = pd.DataFrame(tickers, columns=['ticker'])
-                tickers["codCVM"] = cod
-
-                dicCapitalSocial = BeautifulSoup(html_content, "lxml").find(
-                    "div", attrs={"id": "divComposicaoCapitalSocial"})
-
-                dfs = pd.read_html(str(dicCapitalSocial), thousands='.')[0]
-
-                dfs.columns = ["Tipo", "Quantidade"]
-
-                dfs["codCVM"] = cod
-                dfs["dt_load"] = datetime.now()
-
-                dfs = tickers.merge(dfs, on="codCVM")
-                print(dfs)
-                dfQuantPapeis = dfQuantPapeis.append(dfs)
-                break
-            except Exception as exp:
-                print("Tentando novamente:", cod)
-                print(str(exp))
-                erro += 1
-        print("*"*50)
-
-    return dfQuantPapeis
 
 
 def obter_dados_negociacao(dateToday=datetime.now().strftime("%Y-%m-%d")):

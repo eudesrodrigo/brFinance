@@ -1,20 +1,3 @@
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -22,9 +5,6 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-
-
-<!-- PROJECT LOGO -->
 <br />
 <p align="center">
   <a href="https://github.com/eudesrodrigo/brFinance">
@@ -75,9 +55,6 @@
   </ol>
 </details>
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 brFinance is a web scraping package to simplify access to financial data. It provides data from various sources such as CVM (brazilian equivelent of SEC), B3 (Brazilian stock exchange), Banco Central (brazilian equivalent of FED), ANBIMA, etc.
@@ -106,17 +83,10 @@ This package uses mainly:
 <!-- GETTING STARTED -->
 ## Getting Started
 
-brFinace uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The package sets up the driver automaticaly, however you can also set it up on your own.
-[Click here](https://selenium-python.readthedocs.io/installation.html) to understand how to setup Selenium webdriver on your OS.
-
-<!--### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
--->
+brFinance uses selenium and webdriver to automate page navigation (ChromeDriver, Geckodriver, etc). The package sets up
+the driver automaticaly, however you can also set it up on your own.
+[Click here](https://selenium-python.readthedocs.io/installation.html) to understand how to setup Selenium webdriver on
+your OS.
 
 ### Installation
 
@@ -125,37 +95,66 @@ This is an example of how to list things you need to use the software and how to
    pip install git+git://github.com/eudesrodrigo/brFinance
    ```
 
-
-<!-- USAGE EXAMPLES -->
 ## Usage
-## Brazilian companies data (Quarter and Anual reports)
-We encourage you to have a look at our [Example.ipynb](https://github.com/eudesrodrigo/brFinance/blob/master/Example.ipynb) where you will find a quick explanation on how to instatiate a company object and get the data available. 
+
+We encourage you to have a look at our ```examples``` folder where you will find a quick explanation on how to use the
+library to get the data available.
+
+### Brazilian companies data (Quarter and Anual reports)
 
 This package gets data from the CVM website that is periodically updated.
 [![Method to get the CVM codes and company names available.][b3]](https://www.rad.cvm.gov.br/ENETCONSULTA/frmGerenciaPaginaFRE.aspx?NumeroSequencialDocumento=100673&CodigoTipoInstituicao=2)
 
 After importing the package you can create a new Company object by providing the company CVM code:
-![Creating a new object to get Petrobras' financial data. The package will start the web scraping process (It takes a while...).][instatiate]
 
-Once you have instatiated the Company object you can access its attributes. The "reports" attribute is a list of dicts with all financial statements available organized by reference date:
+```python
+from brFinance.scraper.cvm.company import Company
 
-![Petrobras' Income Statement dataframe (DRE)][dre]
+# Instantiate object for Petrobras (Cod. CVM = 9512)
+petrobras = Company(cvm_code=9512)
 
-You can also use the method cod_cvm_list() from class SearchENET to find the CVM code for a specific company:
-![Method to get the CVM codes and company names available.][cod_cvm_list]
+# Get useful information about Petrobras
+print(petrobras.get_social_capital_data())
+print(petrobras.get_registration_data())
 
+# Get annual and quarterly reports separately
+annual_reports = petrobras.get_annual_reports()
+quarterly_reports = petrobras.get_quarterly_reports()
+```
 
-<!-- ROADMAP 
-## Roadmap
+Once you have instatiated the Company object you can access its attributes. The "reports" variable is a list of dicts
+with all financial statements available organized by reference date:
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+```python
+# Getting data
+print(quarterly_reports["31/03/2021"]["Demonstração do Resultado"])
 
--->
+# Get available dates
+print(annual_reports.keys())
+print(quarterly_reports.keys())
 
-<!-- CONTRIBUTING -->
+# Get available report for each date
+print(quarterly_reports["31/03/2021"].keys())
+```
+
+### CVM codes available
+
+You can also use the method get_cvm_codes() from class SearchDFP or SearchITR to find the CVM code for a specific
+company:
+
+```python
+from brFinance.scraper.cvm.search import SearchDFP, SearchITR
+
+search_dfp = SearchDFP()  # Demonstração Financeira Padronizada
+
+# Get all CVM codes available
+print(search_dfp.get_cvm_codes())
+```
+
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any
+contributions you make are **greatly appreciated**.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -163,16 +162,11 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 
-
-<!-- CONTACT -->
 ## Contact
 
 Your Name - [@eudesrodrigo](https://twitter.com/eudesrodrigo) - eudesrodrigo@outlook.com
@@ -180,8 +174,6 @@ Your Name - [@eudesrodrigo](https://twitter.com/eudesrodrigo) - eudesrodrigo@out
 Project Link: [https://github.com/eudesrodrigo/brFinance](https://github.com/eudesrodrigo/brFinance)
 
 
-
-<!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 * [Img Shields](https://shields.io)
@@ -213,7 +205,4 @@ Project Link: [https://github.com/eudesrodrigo/brFinance](https://github.com/eud
 [license-url]: https://github.com/eudesrodrigo/brFinance/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/eudesrodrigo
-[instatiate]: images/image-1.png
-[cod_cvm_list]: images/image-2.png
-[dre]: images/image-3.png
 [b3]: images/image-4.png
