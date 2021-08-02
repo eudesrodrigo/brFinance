@@ -150,42 +150,61 @@ class Search(ABC):
 
         return df, table
 
-    def _clean_data(self, cvm_code: int, df: pd.DataFrame, table: Any) -> pd.DataFrame:
+    def _clean_data(self, cvm_code: int, df_enet_search_result: pd.DataFrame, table: Any) -> pd.DataFrame:
+        """
+        Perform data cleaning and add link to view or download reports documents
+
+        Parameters
+        ----------
+        cvm_code : int
+            cvm_code
+        df_enet_search_result : DataFrame
+            ENET Search dataframe result
+        table : HTML string with ENET search table result containing links to download and view the reports.
+
+        Returns
+        -------
+        pandas.Dataframe
+            Dataframe containing search cleaned results
+        """
 
         # Cleaning data for CVM code and reference date
-        df["Código CVM"] = cvm_code
-        df['Data Referência'] = df['Data Referência'].str.split(' ', 1).str[1]
-        df['Data Referência'] = pd.to_datetime(df["Data Referência"], format="%d/%m/%Y", errors="coerce")
+        df_enet_search_result["Código CVM"] = cvm_code
+        df_enet_search_result['Data Referência'] = df_enet_search_result['Data Referência'].str.split(' ', 1).str[1]
+        df_enet_search_result['Data Referência'] = pd.to_datetime(df_enet_search_result["Data Referência"], format="%d/%m/%Y", errors="coerce")
 
         # Creating a collumn for document visualization link
         link_view = []
         for expression in table.xpath("//tr/td/i[1]/@onclick"):
             link_view.append("https://www.rad.cvm.gov.br/ENET/" + re.findall("(?<=\')(.*?)(?=\')", expression)[0])
-        df["linkView"] = link_view
+        df_enet_search_result["linkView"] = link_view
 
         # Creating a collumn for document download link
         link_download = []
         for expression in table.xpath("//tr/td/i[2]/@onclick"):
             try:
                 data = expression.split(",")
-                sequencia, versao, protocolo, tipo = [re.findall("(?<=\')(.*?)(?=\')", d)[0] for d in data]
-                link_download.append(f"https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
-                                     f"numSequencia={sequencia}&"
-                                     f"numVersao={versao}&"
-                                     f"numProtocolo={protocolo}&"
-                                     f"descTipo={tipo}&"
-                                     f"CodigoInstituicao=1")
+                if "OpenDownloadDocumentos" in data:
+                    sequencia, versao, protocolo, tipo = [re.findall("(?<=\')(.*?)(?=\')", d)[0] for d in data]
+                    link_download.append(f"https://www.rad.cvm.gov.br/ENET/frmDownloadDocumento.aspx?Tela=ext&"
+                                        f"numSequencia={sequencia}&"
+                                        f"numVersao={versao}&"
+                                        f"numProtocolo={protocolo}&"
+                                        f"descTipo={tipo}&"
+                                        f"CodigoInstituicao=1")
+                else:
+                    link_download.append(None)
             except IndexError:
-                link_download.append("Document does not have a link")
-        df["linkDownload"] = link_download
+                link_download.append(None)
+        df_enet_search_result["linkDownload"] = link_download
 
         # Filtering for documents which Status is Active
-        df = df.drop(df[df["Status"] != "Ativo"].index)
+        df_enet_search_result = df_enet_search_result.drop(df_enet_search_result[df_enet_search_result["Status"] != "Ativo"].index)
 
         # Deleting Actions column
-        del df["Ações"]
+        del df_enet_search_result["Ações"]
 
-        return df
+        return df_enet_search_result
 
     def get_cvm_codes(self) -> pd.DataFrame:
         """Returns a dataframe of all CVM codes and Company names

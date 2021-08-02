@@ -6,12 +6,13 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from fake_useragent import UserAgent
 
+DOWNLOAD_PATH = root = os.path.dirname(os.path.abspath(__file__)) + "/downloads"
 
 @dataclass
 class Browser:
 
     @staticmethod
-    def download_wait(path_to_downloads):
+    def download_wait(path_to_downloads: str=DOWNLOAD_PATH):
         """
         Waits all Chrome download files (.crdownload) in a folder be done before continues
         """
@@ -47,7 +48,7 @@ class Browser:
             options.add_argument("--incognito")
             options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
             root = os.path.dirname(os.path.abspath(__file__))
-            prefs = {"download.default_directory": root + "/downloads"}
+            prefs = {"download.default_directory": DOWNLOAD_PATH}
             options.add_experimental_option("prefs", prefs)
 
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
