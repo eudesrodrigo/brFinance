@@ -37,7 +37,7 @@ class Browser:
         system = str(platform.system())
         
         if system == "Windows" or system == "Darwin":
-            # Options for windows
+            # Options for windows and MacOS
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
             if hidden:
@@ -48,6 +48,11 @@ class Browser:
             options.add_argument("--incognito")
             options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
             root = os.path.dirname(os.path.abspath(__file__))
+            
+            try:
+                os.makedirs(DOWNLOAD_PATH)
+            except FileExistsError:
+                pass
             prefs = {"download.default_directory": DOWNLOAD_PATH}
             options.add_experimental_option("prefs", prefs)
 
