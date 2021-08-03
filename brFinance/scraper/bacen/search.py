@@ -1,6 +1,7 @@
 import datetime
 
 import pandas as pd
+import pytz
 import requests
 from bs4 import BeautifulSoup
 from pandas.errors import ParserError
@@ -149,7 +150,7 @@ class SearchTodayCurrencyPrices:
         pandas.Dataframe
             Dataframe with raw data coming from Central Bank website
         """
-        today = datetime.date.today().strftime("%Y%m%d")
+        today = datetime.datetime.now(pytz.timezone("Brazil/East")).strftime("%Y%m%d")
 
         url = f'https://www4.bcb.gov.br/Download/fechamento/{today}.csv'
 
