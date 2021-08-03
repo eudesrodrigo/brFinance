@@ -139,24 +139,4 @@ def obter_indices_anbima(dataIni, dataFim):
     return dfAmbima.reset_index(drop=True)
 
 
-def obter_cotacao_moeda(startDate, endDate, codMoeda="61"):
-    urlDolar = f'https://ptax.bcb.gov.br/ptax_internet/consultaBoletim.do?method=gerarCSVFechamentoMoedaNoPeriodo&ChkMoeda={codMoeda}&DATAINI={startDate}&DATAFIM={endDate}'
-    columnNames = ["Date", "Tipo", "Moeda", "Compra", "Venda"]
-    dfMoeda = pd.read_csv(urlDolar,
-                          sep=";",
-                          encoding="latin",
-                          decimal=",",
-                          index_col=0,
-                          names=columnNames,
-                          usecols=[0, 2, 3, 4, 5]
-                          )
 
-    dfMoeda.index = pd.to_datetime(
-        [str(x).zfill(8) for x in dfMoeda.index], format="%d%m%Y", errors='coerce')
-
-    dfMoeda["Compra"] = pd.to_numeric(
-        dfMoeda["Compra"].astype(str).str.replace(',', '.'))
-    dfMoeda["Venda"] = pd.to_numeric(
-        dfMoeda["Venda"].astype(str).str.replace(',', '.'))
-
-    return dfMoeda.sort_index()
