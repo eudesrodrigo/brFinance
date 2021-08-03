@@ -36,7 +36,9 @@ RUN apt-get -yqq update && \
 # Install Google Chrome
 ARG CHROMEDRIVER_VERSION="89.0.4389.23"
 RUN wget http://170.210.201.179/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_90.0.4430.212-1_amd64.deb
-RUN apt install ./google-chrome-stable_90.0.4430.212-1_amd64.deb
+RUN apt-get update &&\
+    apt-get install  build-essential &&\
+    apt install -f ./google-chrome-stable_90.0.4430.212-1_amd64.deb
 
 # Install Chrome WebDriver
 RUN apt-get install -yqq unzip

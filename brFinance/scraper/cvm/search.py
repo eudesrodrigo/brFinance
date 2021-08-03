@@ -38,6 +38,7 @@ class Search(ABC):
         cvm_code_exists = str(cod_cvm) in [str(cod_cvm_aux) for cod_cvm_aux in cvm_codes_available['codCVM'].values]
         return cvm_code_exists
 
+
     def _instantiate_driver(self) -> webdriver:
         """Returns a driver object
 
@@ -73,32 +74,12 @@ class Search(ABC):
 
         driver.get(f"https://www.rad.cvm.gov.br/ENET/frmConsultaExternaCVM.aspx?codigoCVM={cvm_code}")
 
-        # Wait until page is loaded and click Categories button
-        while True:
-            try:
-                category_button_id = 'cboCategorias_chosen'
-                driver.find_element_by_id(category_button_id).click()
-                break
-            except Exception:
-                print("[LOG]: Waiting for Categories button")
-                time.sleep(1)
-
-        # Wait until page is loaded and select category from user input
-        while True:
-            try:
-                category_selection_xpath = f"//html/body/form[1]/div[3]/div/fieldset/div[""5]/div[1]/div/div/ul/li[" \
-                                           f"@data-option-array-index='{category}']"
-                driver.find_element_by_xpath(category_selection_xpath).click()
-                break
-            except Exception:
-                print("[LOG]: Waiting for category dropdown menu")
-                time.sleep(1)
-
         # Wait until page is loaded and click Period button
         while True:
             try:
                 period_button_xpath = "//html/body/form[1]/div[3]/div/fieldset/div[4]/div[1]/label[4]"
-                driver.find_element_by_xpath(period_button_xpath).click()
+                #driver.find_element_by_xpath(period_button_xpath).click()
+                driver.find_element_by_id("rdPeriodo").click()
                 break
             except Exception:
                 print("[LOG]: Waiting for period button")
@@ -124,6 +105,27 @@ class Search(ABC):
                 print("[LOG]: Waiting for final date input")
                 time.sleep(1)
 
+        # Wait until page is loaded and click Categories button
+        while True:
+            try:
+                category_button_id = 'cboCategorias_chosen'
+                driver.find_element_by_id(category_button_id).click()
+                break
+            except Exception:
+                print("[LOG]: Waiting for Categories button")
+                time.sleep(1)
+
+        # Wait until page is loaded and select category from user input
+        while True:
+            try:
+                category_selection_xpath = f"//html/body/form[1]/div[3]/div/fieldset/div[""5]/div[1]/div/div/ul/li[" \
+                                           f"@data-option-array-index='{category}']"
+                driver.find_element_by_xpath(category_selection_xpath).click()
+                break
+            except Exception:
+                print("[LOG]: Waiting for category dropdown menu")
+                time.sleep(1)
+
         # Wait until page is loaded and click on Consult button
         while True:
             try:
@@ -138,17 +140,21 @@ class Search(ABC):
         while True:
             try:
                 table_html = str(driver.find_element_by_id('grdDocumentos').get_attribute("outerHTML"))
-                if len(pd.read_html(table_html)[-1].index) > 0: break
+                if ("DFP - Demonstrações Financeiras Padronizadas" in table_html) or \
+                    ("ITR - Informações Trimestrais" in table_html):
+                    break
             except Exception:
                 print("[LOG]: Waiting for results")
                 time.sleep(1)
 
+        
         table = LH.fromstring(table_html)
         df = pd.read_html(table_html)[0]
 
         if self.driver is None: driver.quit()
 
         return df, table
+
 
     def _clean_data(self, cvm_code: int, df_enet_search_result: pd.DataFrame, table: Any) -> pd.DataFrame:
         """
@@ -177,6 +183,7 @@ class Search(ABC):
         link_view = []
         for expression in table.xpath("//tr/td/i[1]/@onclick"):
             link_view.append("https://www.rad.cvm.gov.br/ENET/" + re.findall("(?<=\')(.*?)(?=\')", expression)[0])
+
         df_enet_search_result["linkView"] = link_view
 
         # Creating a collumn for document download link
@@ -292,7 +299,7 @@ class SearchDFP(Search):
         assert self.check_cvm_code_exists(cvm_code), "CVM code not found"
 
         df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
-
+        
         df = self._clean_data(cvm_code, df, table)
 
         return df
@@ -315,6 +322,7 @@ class SearchITR(Search):
         self.driver = driver
         self.category = 39
 
+
     def search(self,
                cvm_code: int,
                initial_date: str = '01012010',
@@ -322,7 +330,7 @@ class SearchITR(Search):
         assert self.check_cvm_code_exists(cvm_code), "CVM code not found"
 
         df, table = self._fetch_data(cvm_code, self.category, initial_date, final_date)
-
+        
         df = self._clean_data(cvm_code, df, table)
 
         return df
