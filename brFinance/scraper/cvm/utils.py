@@ -1,10 +1,7 @@
-import glob
 import os
-import urllib.request
-from datetime import datetime, timedelta
-from io import BytesIO, StringIO
-from zipfile import ZipFile
 import time
+from datetime import datetime
+from zipfile import ZipFile
 
 import pandas as pd
 import requests
@@ -14,7 +11,6 @@ from brFinance.utils.browser import Browser, DOWNLOAD_PATH
 
 
 def obter_dados_negociacao(date=datetime.now().strftime("%Y-%m-%d")):
-
     print(date)
     # Dados negociacao
     url = f"https://arquivos.b3.com.br/api/download/requestname?fileName=InstrumentsConsolidated&date={date}"
@@ -50,7 +46,7 @@ def obter_dados_negociacao(date=datetime.now().strftime("%Y-%m-%d")):
         except Exception:
             print("[LOG]: Waiting for period button")
             time.sleep(1)
-    
+
     isin_file_path = DOWNLOAD_PATH + "/isinp.zip"
     if os.path.isfile(isin_file_path):
         os.remove(isin_file_path)
@@ -58,21 +54,20 @@ def obter_dados_negociacao(date=datetime.now().strftime("%Y-%m-%d")):
         time.sleep(1)
 
     Browser.download_wait()
-    archive = ZipFile( isin_file_path, 'r')
+    archive = ZipFile(isin_file_path, 'r')
     if os.path.isfile(isin_file_path):
         os.remove(isin_file_path)
     driver.quit()
     # read file
-    
+
     dfEmissor = archive.open("EMISSOR.TXT")
     dfEmissor = pd.read_csv(dfEmissor, header=None, names=[
-                            "CODIGO DO EMISSOR", "NOME DO EMISSOR", "CNPJ", "DATA CRIAÇÃO EMISSOR"])
+        "CODIGO DO EMISSOR", "NOME DO EMISSOR", "CNPJ", "DATA CRIAÇÃO EMISSOR"])
 
     data = data.merge(dfEmissor, left_on="AsstDesc",
-                        right_on="CODIGO DO EMISSOR", how="left")
+                      right_on="CODIGO DO EMISSOR", how="left")
 
     data.reset_index(drop=True, inplace=True)
-
 
     #     print("Baixando arquivo!")
     #     r = urllib.request.urlopen(
@@ -82,7 +77,7 @@ def obter_dados_negociacao(date=datetime.now().strftime("%Y-%m-%d")):
 
     #     print("Descompactando arquivo!")
     #     r = requests.get("https://sistemaswebb3-listados.b3.com.br/isinProxy/IsinCall/GetFileDownload/NDY0ODk=", verify=False, stream=True)
-        
+
     #     open(file_name, 'wb').write(r.content)
     #     archive = ZipFile(file_name, 'r')
     #     dfEmissor = archive.open("EMISSOR.TXT")
@@ -103,7 +98,6 @@ def obter_dados_negociacao(date=datetime.now().strftime("%Y-%m-%d")):
 
 
 def obtemCodCVM():
-
     url = "https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/CiaAb/ResultBuscaParticCiaAb.aspx?CNPJNome=&TipoConsult=C"
     print(url)
     tableDados = pd.read_html(url, header=0)[0]
@@ -115,26 +109,3 @@ def obtemCodCVM():
     tableDados = tableDados.reset_index(drop=True)
 
     return tableDados
-
-
-def obter_cotacao_moeda(startDate, endDate, codMoeda="61"):
-    urlDolar = f'https://ptax.bcb.gov.br/ptax_internet/consultaBoletim.do?method=gerarCSVFechamentoMoedaNoPeriodo&ChkMoeda={codMoeda}&DATAINI={startDate}&DATAFIM={endDate}'
-    columnNames = ["Date", "Tipo", "Moeda", "Compra", "Venda"]
-    dfMoeda = pd.read_csv(urlDolar,
-                          sep=";",
-                          encoding="latin",
-                          decimal=",",
-                          index_col=0,
-                          names=columnNames,
-                          usecols=[0, 2, 3, 4, 5]
-                          )
-
-    dfMoeda.index = pd.to_datetime(
-        [str(x).zfill(8) for x in dfMoeda.index], format="%d%m%Y", errors='coerce')
-
-    dfMoeda["Compra"] = pd.to_numeric(
-        dfMoeda["Compra"].astype(str).str.replace(',', '.'))
-    dfMoeda["Venda"] = pd.to_numeric(
-        dfMoeda["Venda"].astype(str).str.replace(',', '.'))
-
-    return dfMoeda.sort_index()
