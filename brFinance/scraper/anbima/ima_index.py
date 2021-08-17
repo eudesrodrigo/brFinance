@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
+
 class AnbimaMarketIndex:
     """
     IMA Index from ANBIMA
@@ -63,7 +64,7 @@ class AnbimaMarketIndex:
                 os.remove(file_name)
             self.date_end -= timedelta(days=1)
 
-        # Clean dataframe
+        # Clear dataframe
         dfAmbima = dfAmbima.replace("--", "")
         dfAmbima["Data de Referência"] = pd.to_datetime(
             dfAmbima["Data de Referência"], format='%d/%m/%Y', errors='coerce')
