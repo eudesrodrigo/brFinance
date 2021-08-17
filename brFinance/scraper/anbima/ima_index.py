@@ -75,6 +75,7 @@ class AnbimaMarketIndex:
                 dfAmbima[column] = dfAmbima[column].astype(
                     str).str.replace(',', '.')
                 dfAmbima[column] = pd.to_numeric(dfAmbima[column])
+        print(dfAmbima.columns)
         
         dfAmbima = dfAmbima[["Número Índice",
                             "Peso(%)",
