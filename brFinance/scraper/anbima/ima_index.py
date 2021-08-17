@@ -77,7 +77,9 @@ class AnbimaMarketIndex:
                 dfAmbima[column] = pd.to_numeric(dfAmbima[column])
         print(dfAmbima.columns)
         
-        dfAmbima = dfAmbima[["Número Índice",
+        dfAmbima = dfAmbima[['Índice',
+                            'Data de Referência',
+                            "Número Índice",
                             "Peso(%)",
                             "Duration(d.u.)",
                             "Carteira a Mercado (R$ mil)",
@@ -89,7 +91,9 @@ class AnbimaMarketIndex:
                             "Yield",
                             "Redemption Yield"]]
 
-        new_columns_names = {"Número Índice": "numero_indice",
+        new_columns_names = {'Índice': 'indice',
+                            'Data de Referência': 'reference_date',
+                            "Número Índice": "numero_indice",
                             "Peso(%)": "peso_percentual",
                             "Duration(d.u.)": "duration",
                             "Carteira a Mercado (R$ mil)": "carteira_a_mercado",
