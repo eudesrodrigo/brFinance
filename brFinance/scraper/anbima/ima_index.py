@@ -34,6 +34,7 @@ class AnbimaMarketIndex:
         dfAmbima = pd.DataFrame()
         while self.date_end >= self.date_begin:
             dateAux = self.date_end.strftime("%d%m%Y")
+            print(dateAux)
             file_name = f"{DOWNLOAD_PATH}/IMA_SH_{dateAux}.csv"
             
             if not os.path.exists(file_name):
