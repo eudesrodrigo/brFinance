@@ -35,6 +35,8 @@ class Browser:
 
         os.environ['WDM_LOG_LEVEL'] = '0'
         system = str(platform.system())
+        if not os.path.exists(DOWNLOAD_PATH):
+            os.makedirs(DOWNLOAD_PATH)
         
         if system == "Windows" or system == "Darwin":
             # Options for windows and MacOS
