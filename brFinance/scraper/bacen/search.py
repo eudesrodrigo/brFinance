@@ -36,10 +36,11 @@ class SearchCurrencyPrice:
         """
         url = f'https://ptax.bcb.gov.br/ptax_internet/consultaBoletim.do?method=gerarCSVFechamentoMoedaNoPeriodo' \
               f'&ChkMoeda={self.currency_code}&DATAINI={self.initial_date}&DATAFIM={self.final_date}'
-
+        
         try:
             df = pd.read_csv(url, sep=";", encoding="latin", decimal=",", index_col=0,
                              names=["Date", "Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
+            
         except ParserError:
             raise Exception("An error occurred when parsing data. Check if currency is available at "
                             "https://www.bcb.gov.br/estabilidadefinanceira/historicocotacoes")
@@ -64,7 +65,7 @@ class SearchCurrencyPrice:
         df["Venda"] = pd.to_numeric(df["Venda"].astype(str).str.replace(',', '.'))
 
         df.sort_index(inplace=True)
-
+        
         return df
 
     def _check_if_code_exists(self) -> bool:
@@ -154,8 +155,17 @@ class SearchTodayCurrencyPrices:
 
         url = f'https://www4.bcb.gov.br/Download/fechamento/{today}.csv'
 
-        df = pd.read_csv(url, sep=";", encoding="latin", decimal=",", index_col=0,
-                         names=["Date", "Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
+        df = pd.DataFrame(columns=["Tipo", "Moeda", "Compra", "Venda"])
+
+        try:
+            df = pd.read_csv(url, sep=";", encoding="latin", decimal=",", index_col=0,
+                            names=["Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
+            
+        except Exception as exp:
+            if 'HTTP Error 404: Not Found' in str(exp):
+                print(f"Currency is not available for this date: {today}, {url}")
+            else:
+                raise
 
         return df
 
@@ -171,6 +181,8 @@ class SearchTodayCurrencyPrices:
         pandas.Dataframe
             Dataframe with cleaned data
         """
+        df.index = pd.to_datetime([str(x).zfill(8) for x in df.index], format="%d%m%Y", errors='coerce')
+
         df["Compra"] = pd.to_numeric(df["Compra"].astype(str).str.replace(',', '.'))
         df["Venda"] = pd.to_numeric(df["Venda"].astype(str).str.replace(',', '.'))
 
@@ -185,5 +197,5 @@ class SearchTodayCurrencyPrices:
         """
         pure_df = self._fetch_data()
         clean_df = self._clean_data(pure_df)
-
+        
         return clean_df

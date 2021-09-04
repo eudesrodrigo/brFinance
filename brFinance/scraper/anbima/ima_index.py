@@ -110,4 +110,3 @@ class AnbimaMarketIndex:
         driver.quit()
 
         return dfAmbima.reset_index(drop=True)
-

@@ -28,7 +28,7 @@ class Browser:
         return seconds
 
     @staticmethod
-    def run_chromedriver(hidden: bool=False) -> webdriver:
+    def run_chromedriver(hidden: bool=True) -> webdriver:
         """
         Instantiate a webdriver object with different settings depending of OS you are using
         """
