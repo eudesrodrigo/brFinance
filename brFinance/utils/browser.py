@@ -69,6 +69,6 @@ class Browser:
             options.add_argument("--incognito")
             options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
 
-            driver = webdriver.Chrome(options=options)
+            driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
         return driver
