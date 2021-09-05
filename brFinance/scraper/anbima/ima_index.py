@@ -30,7 +30,8 @@ class AnbimaMarketIndex:
 
         link = "https://www.anbima.com.br/informacoes/ima/ima-sh.asp"
         driver = Browser.run_chromedriver()
-
+        
+        print(f"1- Iniciando: {link}")
         dfAmbima = pd.DataFrame()
         while self.date_end >= self.date_begin:
             dateAux = self.date_end.strftime("%d%m%Y")
@@ -38,8 +39,10 @@ class AnbimaMarketIndex:
             file_name = f"{DOWNLOAD_PATH}/IMA_SH_{dateAux}.csv"
             
             if not os.path.exists(file_name):
-                
+                print(f"2- Acessando página:{link}")
                 driver.get(link)
+                print(f"Página carregada.")
+
                 driver.find_element_by_xpath(
                     "//input[@name='escolha'][@value='2']").click()
                 driver.find_element_by_xpath(
@@ -49,10 +52,13 @@ class AnbimaMarketIndex:
                 dateInput.clear()
                 dateInput.send_keys(dateAux)
                 driver.find_element_by_xpath("//img[@name='Consultar']").click()
-                
+            
+            print(f"3- Aguardando download concluir.")
             Browser.download_wait()
 
+            print(f"3- Aguardando download concluir: {file_name}")
             while not os.path.isfile(file_name):
+                print(".")
                 time.sleep(1)
 
             try:

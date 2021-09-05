@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from brFinance.scraper.cvm.company import Company
 
 # Instantiate object for Petrobras (Cod. CVM = 9512)
