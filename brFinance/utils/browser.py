@@ -70,7 +70,8 @@ class Browser:
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_argument("--incognito")
             options.add_argument('user-agent={userAgent}'.format(userAgent=UserAgent().chrome))
-
+            prefs = {"download.default_directory": DOWNLOAD_PATH}
+            options.add_experimental_option("prefs", prefs)
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
         return driver
