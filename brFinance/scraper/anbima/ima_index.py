@@ -57,9 +57,11 @@ class AnbimaMarketIndex:
             Browser.download_wait()
 
             print(f"3- Aguardando download concluir: {file_name}")
-            while not os.path.isfile(file_name):
-                print(".")
+            time_elapsed = 0
+            while not os.path.isfile(file_name) and time_elapsed < 10:
+                print(f'{time_elapsed} segundos...')
                 time.sleep(1)
+                time_elapsed += 1
 
             try:
                 df = pd.read_csv(file_name, header=1, sep=";", encoding="latin", thousands=".")
