@@ -2,7 +2,7 @@ import datetime
 
 import pandas as pd
 
-from brFinance.scraper.bacen.search import SearchAvailableCurrencies, SearchCurrencyPrice, SearchTodayCurrencyPrices
+from brFinance.scraper.bacen.search import SearchAllCurrenciesPrices, SearchAvailableCurrencies, SearchCurrencyPrice
 
 
 class Currency:
@@ -36,14 +36,14 @@ class Currency:
         return SearchAvailableCurrencies().get_available_currencies()
 
     @staticmethod
-    def get_today_prices() -> pd.DataFrame:
+    def get_all_currencies_prices_by_date(reference_date: datetime.datetime) -> pd.DataFrame:
         """
         Returns
         -------
         pandas.Dataframe
             Dataframe with today prices of all currencies in respect to Brazilian Real
         """
-        return SearchTodayCurrencyPrices().get_today_prices()
+        return SearchAllCurrenciesPrices(reference_date).get_prices()
 
     def get_price(self) -> pd.DataFrame:
         """

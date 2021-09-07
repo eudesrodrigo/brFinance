@@ -39,8 +39,8 @@ class TestCurrency(unittest.TestCase):
         self.assertEqual(list(df.columns), TestCurrency.AVAILABLE_CURRENCIES_COLUMNS,
                          msg="Wrong columns inside dataframe")
 
-    def test_get_today_prices(self) -> None:
-        df = self.currency.get_today_prices()
+    def test_get_all_currencies_prices_by_date(self) -> None:
+        df = self.currency.get_all_currencies_prices_by_date(datetime.datetime(2021, 9, 3))
 
         self.assertIsInstance(df, DataFrame, msg="Today prices result is not a Dataframe")
 

@@ -142,7 +142,24 @@ class SearchAvailableCurrencies:
         return df
 
 
-class SearchTodayCurrencyPrices:
+class SearchAllCurrenciesPrices:
+
+    def __init__(self,
+                 reference_date: datetime.date = datetime.datetime.now()):
+        """
+        Parameters
+        ----------
+        currency_code : int
+            Currency code according to available currencies method
+        initial_date: str
+            Ex: 01/01/2021
+        final_date: str
+            Ex: 30/07/2021
+        """
+
+        assert reference_date <= datetime.datetime.now(), "Final date is should be earlier than today"
+
+        self.reference_date = reference_date.strftime("%Y%m%d")
 
     def _fetch_data(self) -> pd.DataFrame:
         """
@@ -151,19 +168,19 @@ class SearchTodayCurrencyPrices:
         pandas.Dataframe
             Dataframe with raw data coming from Central Bank website
         """
-        today = datetime.datetime.now(pytz.timezone("Brazil/East")).strftime("%Y%m%d")
+        
 
-        url = f'https://www4.bcb.gov.br/Download/fechamento/{today}.csv'
+        url = f'https://www4.bcb.gov.br/Download/fechamento/{self.reference_date}.csv'
 
-        df = pd.DataFrame(columns=["Tipo", "Moeda", "Compra", "Venda"])
+        df = pd.DataFrame(columns=["Date", "Tipo", "Moeda", "Compra", "Venda"])
 
         try:
             df = pd.read_csv(url, sep=";", encoding="latin", decimal=",", index_col=0,
-                            names=["Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
+                            names=["Date", "Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
             
         except Exception as exp:
             if 'HTTP Error 404: Not Found' in str(exp):
-                print(f"Currency is not available for this date: {today}, {url}")
+                print(f"Currency is not available for this date: {self.reference_date}, {url}")
             else:
                 raise
 
@@ -188,7 +205,7 @@ class SearchTodayCurrencyPrices:
 
         return df
 
-    def get_today_prices(self) -> pd.DataFrame:
+    def get_prices(self) -> pd.DataFrame:
         """
         Returns
         -------
@@ -199,3 +216,4 @@ class SearchTodayCurrencyPrices:
         clean_df = self._clean_data(pure_df)
         
         return clean_df
+
