@@ -219,7 +219,7 @@ class SearchAllCurrenciesPrices:
                        "Cotações em Real - Venda",
                        "Paridade - Compra",
                        "Paridade - Venda"]:
-            df[column] = pd.to_numeric(df[column].astype(str).str.replace(',', '.'))
+            df[column] = pd.to_numeric(df[column].astype(str).str.replace(',', '.'), errors='coerce')
 
         return df
 
