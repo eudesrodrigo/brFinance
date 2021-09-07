@@ -172,11 +172,24 @@ class SearchAllCurrenciesPrices:
 
         url = f'https://www4.bcb.gov.br/Download/fechamento/{self.reference_date}.csv'
 
-        df = pd.DataFrame(columns=["Date", "Tipo", "Moeda", "Compra", "Venda"])
+
+        columns = ["Reference Date",
+                   "Código",
+                   "Tipo",
+                   "Moeda",
+                   "Cotações em Real - Compra",
+                   "Cotações em Real - Venda",
+                   "Paridade - Compra",
+                   "Paridade - Venda"]
+
+        df = pd.DataFrame(columns=columns)
 
         try:
-            df = pd.read_csv(url, sep=";", encoding="latin", decimal=",", index_col=0,
-                            names=["Date", "Tipo", "Moeda", "Compra", "Venda"], usecols=[0, 2, 3, 4, 5])
+            df = pd.read_csv(url, sep=";",
+                             encoding="latin",
+                             decimal=",",
+                             names=columns,
+                             usecols=[0, 1, 2, 3, 4, 5, 6, 7])
             
         except Exception as exp:
             if 'HTTP Error 404: Not Found' in str(exp):
@@ -198,10 +211,15 @@ class SearchAllCurrenciesPrices:
         pandas.Dataframe
             Dataframe with cleaned data
         """
-        df.index = pd.to_datetime([str(x).zfill(8) for x in df.index], format="%d%m%Y", errors='coerce')
-
-        df["Compra"] = pd.to_numeric(df["Compra"].astype(str).str.replace(',', '.'))
-        df["Venda"] = pd.to_numeric(df["Venda"].astype(str).str.replace(',', '.'))
+        
+        df["Reference Date"] = pd.to_datetime(df["Reference Date"], format="%d/%m/%Y", errors='coerce')
+        df.set_index("Reference Date", drop=True, append=False, inplace=True)
+        print(df.index)
+        for column in ["Cotações em Real - Compra",
+                       "Cotações em Real - Venda",
+                       "Paridade - Compra",
+                       "Paridade - Venda"]:
+            df[column] = pd.to_numeric(df[column].astype(str).str.replace(',', '.'))
 
         return df
 
