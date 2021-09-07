@@ -171,6 +171,7 @@ class SearchAllCurrenciesPrices:
         
 
         url = f'https://www4.bcb.gov.br/Download/fechamento/{self.reference_date}.csv'
+        print(url)
 
 
         columns = ["Reference Date",
@@ -214,7 +215,7 @@ class SearchAllCurrenciesPrices:
         
         df["Reference Date"] = pd.to_datetime(df["Reference Date"], format="%d/%m/%Y", errors='coerce')
         df.set_index("Reference Date", drop=True, append=False, inplace=True)
-        print(df.index)
+
         for column in ["Cotações em Real - Compra",
                        "Cotações em Real - Venda",
                        "Paridade - Compra",
