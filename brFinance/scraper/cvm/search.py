@@ -334,3 +334,73 @@ class SearchITR(Search):
         df = self._clean_data(cvm_code, df, table)
 
         return df
+
+
+class SearchFundsData:
+    """
+    An instance of a Fund can fetch useful information about Brazilian Funds
+    """
+
+    def __init__(self,
+                 reference_date: datetime):
+        self.reference_date = reference_date
+
+    def get_daily_data(self):
+        """
+        Retrieve funds' daily data such from CVM (quota, pl, capitação, etc.)
+        """
+        year = self.reference_date.year
+        month = str(self.reference_date.month).zfill(2)
+        url = f"http://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{year}{month}.csv"
+
+        columns = ["CNPJ_FUNDO",
+                   "DT_COMPTC",
+                   "VL_TOTAL",
+                   "VL_QUOTA",
+                   "VL_PATRIM_LIQ",
+                   "CAPTC_DIA",
+                   "RESG_DIA",
+                   "NR_COTST"]
+
+        df = pd.DataFrame(columns=columns)
+
+        try:
+            df_funds_daily_data = pd.read_csv(url,
+                                              sep=";",
+                                              encoding="latin",
+                                              decimal=".",
+                                              header=0)
+            df_funds_daily_data = df_funds_daily_data[columns]
+
+        except Exception as exp:
+            if 'HTTP Error 404: Not Found' in str(exp):
+                print(f"Funds daily data is not available for this date: {self.reference_date}, {url}")
+            else:
+                raise
+        
+        # Clean data
+        df_funds_daily_data["CNPJ_FUNDO"] = df_funds_daily_data["CNPJ_FUNDO"].str.replace(r'[^0-9]+', '')
+        #df_funds_daily_data["CNPJ_FUNDO"] = pd.to_numeric(df_funds_daily_data["CNPJ_FUNDO"], errors="coerce")
+
+        numeric_columns = ["VL_TOTAL",
+                           "VL_QUOTA",
+                           "VL_PATRIM_LIQ",
+                           "CAPTC_DIA",
+                           "RESG_DIA",
+                           "NR_COTST"]
+        
+        for column in numeric_columns:
+            df_funds_daily_data[column] = pd.to_numeric(df_funds_daily_data[column], errors="coerce")
+        
+        date_columns = ["DT_COMPTC"]
+
+        for column in date_columns:
+            df_funds_daily_data[column] = pd.to_datetime(df_funds_daily_data[column], format="%Y-%m-%d", errors="coerce")
+        
+        new_columns_names = {}
+        for column_name in columns:
+            new_columns_names[column_name] = column_name.lower()
+
+        df_funds_daily_data.rename(columns=new_columns_names, inplace=True)
+
+        return df_funds_daily_data
