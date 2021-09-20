@@ -240,8 +240,8 @@ class Search(ABC):
                 time.sleep(1)
 
         # Selecting company name and CVM code
-        list_cod_cvm = re.findall(r"(?<=_)(.*?)(?=\')", html_data)
-        list_nome_emp = re.findall(r"(?<=-)(.*?)(?=\')", html_data)
+        list_cod_cvm = re.findall(r"(?<=key:'C_)(.*?)(?=\')", html_data)
+        list_nome_emp = re.findall(r"(?<=value:')\d+ - (.*?)(?=\')", html_data)
 
         # Adding selected information to a Dataframe
         df = pd.DataFrame(list(zip(list_cod_cvm, list_nome_emp)), columns=['codCVM', 'nome_empresa'])
