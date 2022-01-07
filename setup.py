@@ -29,7 +29,8 @@ setuptools.setup(
     ),
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='',
+    url='https://github.com/eudesrodrigo/brFinance',
+    download_url='https://github.com/eudesrodrigo/brFinance/archive/refs/tags/0.0.1.tar.gz',
     install_requires=install_requires,
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
