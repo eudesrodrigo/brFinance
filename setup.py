@@ -1,15 +1,41 @@
-from setuptools import setup, find_packages
+import sys
 
-setup(
+import setuptools
+
+if sys.version_info < (3, 7):
+    raise RuntimeError('bolsa requires Python 3.7+')
+
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
+
+install_requires = [
+    'aiohttp>=3.6.2,<4.0.0',
+    'requests',
+    'pandas',
+    'beautifulsoup4',
+]
+
+
+setuptools.setup(
     name='brfinance',
-    version='0.1',
-    packages=find_packages(exclude=['tests*']),
-    license='MIT',
-    description='A Python package for webscraping financial data brazilian sources such as CVM, Banco Central, B3, ANBIMA, etc.',
-    long_description=open('README.md').read(),
-    install_requires=['numpy', 'beautifulsoup4', 'bs4', 'certifi', 'charset-normalizer', 'colorama', 'configparser', 'crayons', 'fake-useragent',
-                      'idna', 'lxml', 'numpy', 'pandas', 'python-dateutil', 'pytz', 'requests', 'selenium', 'six', 'soupsieve', 'urllib3', 'webdriver-manager'],
-    url='https://github.com/BillMills/python-package-example',
+    version='0.0.1',
+    packages=setuptools.find_packages(),
+    python_requires='>=3.7.*',
     author='Eudes Rodrigo Nunes de Oliveira',
-    author_email='eudesrodrigo@outlook.com'
+    author_email='eudesrodrigo@outlook.com',
+    description=(
+        'Biblioteca em Python com o objetivo de facilitar o acesso a '
+        'dados financeiros periódicos de empresas brasileiras(B3/CVM).'
+    ),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='',
+    install_requires=install_requires,
+    classifiers=[
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.8',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows'
+    ],
 )
