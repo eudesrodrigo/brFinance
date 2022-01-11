@@ -26,7 +26,7 @@ $ pip install brfinance
 ## Como utilizar
 Veja como é simples utilizar:
 ```python
-from cvm import CVMAsyncBackend, http_client, connector
+from brfinance import CVMAsyncBackend, http_client, connector
 
 from datetime import datetime, date
 
