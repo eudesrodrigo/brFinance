@@ -3,6 +3,8 @@ import logging
 import pandas as pd
 from bs4 import BeautifulSoup
 import json
+import io
+import zipfile
 
 from brfinance.utils import extract_substring
 from brfinance.constants import ENET_URL
@@ -24,7 +26,8 @@ class GetSearchResponse():
         dados = reponse_json["d"]["dados"]
 
         if dados != "":
-            data = dados.replace("<spanOrder>", "").replace("</spanOrder>", "")
+            #data = dados.replace("<spanOrder>", "").replace("</spanOrder>", "")
+            data = dados.replace("<spanOrder>", "")
 
             search_results_df = pd.DataFrame([x.split('$&') for x in data.split('$&&*')])
             new_columns_names = ["cod_cvm", "empresa", "categoria", "tipo", "especie", "ref_date", "data_entrega", "status", "version", "modalidade", "acoes"]
@@ -53,9 +56,20 @@ class GetSearchResponse():
 
                 new = search_results_df['view_url'].str.split("CodigoTipoInstituicao=", n=-1, expand=True)
                 search_results_df['codigo_tipo_instituicao'] = new[1]
+                
+                
             response_df = response_df.append(search_results_df)
-
+            
+        new = response_df['data_entrega'].str.split("</spanOrder>", n=-1, expand=True)
+        response_df['data_entrega'] = pd.to_datetime(new[1].str.strip(), format="%d/%m/%Y %H:%M")
+        
+        new = response_df['ref_date'].str.split("</spanOrder>", n=-1, expand=True)
+        response_df['ref_date'] = pd.to_datetime(new[0].str.strip(), format="%Y%m%d")
+        
         response_df['cod_cvm'] = response_df['cod_cvm'].str.replace(r'\D+', '')
+        response_df['data_entrega'] = response_df['data_entrega']
+        
+        response_df = response_df.replace({'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
 
         return response_df
 
@@ -155,3 +169,72 @@ class GetCategoriesResponse():
             categories[option.attrs["value"]] = option.getText().replace(u'\xa0', u'')
 
         return categories
+
+
+class GetCadastroInstrumentosTokenResponse():
+    def __init__(self, response) -> None:
+        self.response = response
+
+    def data(self):
+        data = self._parse_get_cadastro_instrumentos_token(self.response.json())
+        return data
+
+    def _parse_get_cadastro_instrumentos_token(self, json_response):
+        return json_response["token"]
+
+class GetCadastroInstrumentosResponse():
+    def __init__(self, response) -> None:
+        self.response = response
+
+    def data(self):
+        data = self._parse_get_cadastro_instrumentos(self.response.text)
+        return data
+
+    def _parse_get_cadastro_instrumentos(self, csv):
+        ativos = pd.read_csv(io.StringIO(csv), sep=";")
+
+        return ativos
+    
+class GetEmissorResponse():
+    def __init__(self, response) -> None:
+        self.response = response
+
+    def data(self):
+        data = self._parse_get_emissor(self.response.content)
+        return data
+
+    def _parse_get_emissor(self, content):
+        file = zipfile.ZipFile(io.BytesIO(content))
+        emissor_file = file.open('EMISSOR.TXT')
+        
+        header = [
+            'Asst',
+            'descricao',
+            'cnpj',
+            'outro'
+        ]
+        
+        emissor_file = pd.read_csv(emissor_file, names=header)
+        emissor_file['cnpj'] = pd.to_numeric(emissor_file['cnpj'])
+
+        return emissor_file
+    
+class GetPesquisaCiaAbertaResponse():
+    def __init__(self, response) -> None:
+        self.response = response
+
+    def data(self):
+        data = self._parse_get_pesquisa_cia_aberta(self.response.text)
+        return data
+
+    def _parse_get_pesquisa_cia_aberta(self, content):
+        cod_cvm_dataframe = pd.read_html(content, header=0)[0]
+        cod_cvm_dataframe['CNPJ'] = pd.to_numeric(cod_cvm_dataframe['CNPJ'].str.replace(r'\D+', ''))
+        cod_cvm_dataframe.rename(columns={
+            'NOME': 'nome',
+            'CNPJ': 'cnpj',
+            'CÓDIGO CVM': 'cod_cvm',
+            'TIPO DE PARTICIPANTE': 'tipo_participante',
+            'SITUAÇÃO REGISTRO': 'situacao_registro'}, inplace=True)
+        
+        return cod_cvm_dataframe

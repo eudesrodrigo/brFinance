@@ -26,14 +26,16 @@ class CVMHttpClient():
             cod_cvm: str,
             start_date: date,
             end_date: date,
-            report_type: str,
-            last_ref_date: bool = False
+            category: str,
+            last_ref_date
             ):
-
-        cod_cvm = str(cod_cvm).zfill(6)
+        
+        if (str(cod_cvm)) and (str(cod_cvm) is not None):
+            cod_cvm = str(cod_cvm).zfill(6)
+        
         dataDe = start_date.strftime("%d/%m/%Y")
         dataAte = end_date.strftime("%d/%m/%Y")
-        categoria = report_type
+        categoria = category
         ultimaDtRef = BOOL_STRING_MAPPER[last_ref_date]
 
         headers = {
@@ -114,3 +116,53 @@ class CVMHttpClient():
     def get_enet_consulta_externa(self):
         consulta_enet_response = self.session.get(self.ENET_CONSULTA_EXTERNA)
         return consulta_enet_response
+    
+    def get_cadastro_de_instrumentos_token(self, ref_date: date):
+        ref_date = ref_date.strftime("%Y-%m-%d")
+    
+        token_url = f"https://arquivos.b3.com.br/api/download/requestname?fileName=InstrumentsConsolidated&date={ref_date}"
+        response = self.session.get(token_url)
+        
+        if response.ok:
+            return response
+    
+    def get_cadastro_de_instrumentos(self, token: str):
+        download_url = f"https://arquivos.b3.com.br/api/download/?token={token}"
+
+        headers = {
+            'authority': 'arquivos.b3.com.br',
+            'accept': 'application/json, text/plain, */*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+            'dnt': '1,',
+            'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': "Windows",
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+        }
+
+        data = "{" + f"token: '{token}'" + "}"
+
+        response = self.session.get(
+            download_url,
+            headers=headers)
+        
+        if response.ok:
+            return response
+
+    def get_emissor(self):
+        url = f"https://sistemaswebb3-listados.b3.com.br/isinProxy/IsinCall/GetFileDownload/NTE3ODA="
+        response = self.session.get(url, verify=False)
+        
+        if response.ok:
+            return response
+        
+    def get_pesquisa_cia_aberta(self):
+        url = f"https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/CiaAb/ResultBuscaParticCiaAb.aspx?CNPJNome=&TipoConsult=C"
+        response = self.session.get(url, verify=False)
+        
+        if response.ok:
+            return response

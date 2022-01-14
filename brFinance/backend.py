@@ -6,7 +6,11 @@ from brfinance.responses import (
     GetCVMCodesResponse,
     GetCategoriesResponse,
     GetSearchResponse,
-    GetReportResponse
+    GetReportResponse,
+    GetCadastroInstrumentosTokenResponse,
+    GetCadastroInstrumentosResponse,
+    GetEmissorResponse,
+    GetPesquisaCiaAbertaResponse
     )
 
 POOL_CONNECTOR = CVMHttpClientConnector()
@@ -24,14 +28,22 @@ class CVMAsyncBackend():
             )
 
     def get_consulta_externa_cvm_results(
-            self, cod_cvm, start_date: date, end_date: date, last_ref_date: bool, report_type: str
+            self,
+            start_date: date = date.today(),
+            end_date: date = date.today(),
+            cod_cvm: list = [],
+            category: list = None,
+            last_ref_date: bool = False
             ):
+        
+        if (not category) or (category is None):
+            category = ['EST_-1', 'IPE_-1_-1_-1']
 
         response = self._http_client().get_search_results(
-            cod_cvm=cod_cvm,
+            cod_cvm=",".join(cod_cvm),
             start_date=start_date,
             end_date=end_date,
-            report_type=report_type,
+            category=",".join(category),
             last_ref_date=last_ref_date)
         response_class = GetSearchResponse(response=response)
 
@@ -61,3 +73,34 @@ class CVMAsyncBackend():
         response_class = GetCategoriesResponse(response=response)
 
         return response_class.data()
+    
+    def get_consulta_externa_cvm_categories(self):
+        response = self._http_client().get_enet_consulta_externa()
+        response_class = GetCategoriesResponse(response=response)
+
+        return response_class.data()
+    
+    def get_cadastro_instrumentos(self, ref_date: date = date.today()):
+        
+        token_response = self._http_client().get_cadastro_de_instrumentos_token(ref_date=ref_date)
+        token = GetCadastroInstrumentosTokenResponse(response=token_response).data()
+        
+        response = self._http_client().get_cadastro_de_instrumentos(token=token)
+        response_class = GetCadastroInstrumentosResponse(response=response)
+
+        return response_class.data()
+
+    def get_emissor(self):
+        
+        response = self._http_client().get_emissor()
+        response_class = GetEmissorResponse(response=response)
+
+        return response_class.data()
+    
+    def get_pesquisa_cia_aberta(self):
+            
+        response = self._http_client().get_pesquisa_cia_aberta()
+        response_class = GetPesquisaCiaAbertaResponse(response=response)
+
+        return response_class.data()
+
