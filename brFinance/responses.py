@@ -20,56 +20,62 @@ class GetSearchResponse():
 
     def _parse_get_search(self, reponse_json):
 
-        columns = ['cod_cvm', 'empresa', 'categoria', 'tipo', 'especie', 'ref_date', 'data_entrega', 'status', 'version', 'modalidade', "acoes", "outros", 'view_url', 'numero_seq_documento', 'codigo_tipo_instituicao']
-        response_df = pd.DataFrame(columns=columns)
+        columns = ['cod_cvm', 'empresa', 'categoria', 'tipo', 'especie', 'ref_date',
+                   'data_entrega', 'status', 'version', 'modalidade', "acoes", "outros"]
+        addtional_columns = ['view_url',
+                             'numero_seq_documento', 'codigo_tipo_instituicao']
+
+        download_columns = ["numSequencia",
+                            "numVersao", "numProtocolo", "descTipo"]
+
+        response_df = pd.DataFrame(
+            columns=columns+addtional_columns+download_columns)
 
         dados = reponse_json["d"]["dados"]
 
-        if dados != "":
-            #data = dados.replace("<spanOrder>", "").replace("</spanOrder>", "")
+        if dados:
             data = dados.replace("<spanOrder>", "")
 
-            search_results_df = pd.DataFrame([x.split('$&') for x in data.split('$&&*')])
-            new_columns_names = ["cod_cvm", "empresa", "categoria", "tipo", "especie", "ref_date", "data_entrega", "status", "version", "modalidade", "acoes"]
+            search_results_df = pd.DataFrame(
+                [x.split('$&') for x in data.split('$&&*')], columns=columns).iloc[:, :11]
 
-            if len(search_results_df.columns) > len(new_columns_names):
-                new_columns_names.append("outros")
+            search_results_df = search_results_df[pd.notnull(
+                search_results_df['acoes'])]
 
-            search_results_df.columns = new_columns_names
-
-            if (not search_results_df.empty) and ("frmGerenciaPaginaFRE" in dados):
+            if not search_results_df.empty:
                 # Obtem coluna de links
-                new = search_results_df["acoes"].str.split("> ", n=-1, expand=True)
-                search_results_df["view_url"] = new[0]
+                search_results_df.loc[
+                    search_results_df['acoes'].str.contains("OpenPopUpVer\('"),
+                    'view_url'] = ENET_URL + search_results_df['acoes'].str.extract('OpenPopUpVer\(\'(.*?)\'\)', expand=False)
 
-                search_results_df.replace("", float("NaN"), inplace=True)
-                search_results_df.replace("None", float("NaN"), inplace=True)
-                search_results_df.dropna(subset=["cod_cvm"], inplace=True)
+                search_results_df[download_columns] = search_results_df['acoes'].str.extract(
+                    'OpenDownloadDocumentos\(\'(.*?)\'\)', expand=False).str.replace("'", "").str.split(",", expand=True)
 
-                search_results_df['view_url'] = ENET_URL + search_results_df.apply(
-                    lambda row: extract_substring(
-                        "OpenPopUpVer('", "') ", row['view_url']),  axis=1)
+                search_results_df.loc[
+                    search_results_df['acoes'].str.contains("OpenPopUpVer\('"),
+                    'numero_seq_documento'] = search_results_df['acoes'].str.extract('NumeroSequencialDocumento\=(.*?)\&', expand=False)
 
-                search_results_df['numero_seq_documento'] = search_results_df.apply(
-                    lambda row: extract_substring(
-                        "NumeroSequencialDocumento=", "&", row['view_url']), axis=1)
+                search_results_df.loc[
+                    search_results_df['acoes'].str.contains("OpenPopUpVer\('"),
+                    'codigo_tipo_instituicao'] = search_results_df['acoes'].str.extract("CodigoTipoInstituicao\=(.*?)\'\)", expand=False)
 
-                new = search_results_df['view_url'].str.split("CodigoTipoInstituicao=", n=-1, expand=True)
-                search_results_df['codigo_tipo_instituicao'] = new[1]
-                
-                
-            response_df = response_df.append(search_results_df)
-            
-        new = response_df['data_entrega'].str.split("</spanOrder>", n=-1, expand=True)
-        response_df['data_entrega'] = pd.to_datetime(new[1].str.strip(), format="%d/%m/%Y %H:%M")
-        
-        new = response_df['ref_date'].str.split("</spanOrder>", n=-1, expand=True)
-        response_df['ref_date'] = pd.to_datetime(new[0].str.strip(), format="%Y%m%d")
-        
-        response_df['cod_cvm'] = response_df['cod_cvm'].str.replace(r'\D+', '')
-        response_df['data_entrega'] = response_df['data_entrega']
-        
-        response_df = response_df.replace({'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
+                new = search_results_df['data_entrega'].str.split(
+                    "</spanOrder>", n=-1, expand=True)
+                search_results_df['data_entrega'] = pd.to_datetime(
+                    new[1].str.strip(), format="%d/%m/%Y %H:%M")
+
+                new = search_results_df['ref_date'].str.split(
+                    "</spanOrder>", n=-1, expand=True)
+                search_results_df['ref_date'] = pd.to_datetime(
+                    new[0].str.strip(), format="%Y%m%d")
+
+                search_results_df['cod_cvm'] = search_results_df['cod_cvm'].str.replace(
+                    r'\D+', '')
+
+                search_results_df = search_results_df.replace(
+                    {'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
+
+                response_df = response_df.append(search_results_df)
 
         return response_df
 
@@ -95,7 +101,8 @@ class GetReportResponse():
         if statement == "Demonstração do Fluxo de Caixa":
             index_moeda = -2
 
-        currency_unit = currency_unit.split(" - ")[index_moeda].replace("(", "").replace(")", "")
+        currency_unit = currency_unit.split(
+            " - ")[index_moeda].replace("(", "").replace(")", "")
 
         table_index = 0
         if statement == "Demonstração das Mutações do Patrimônio Líquido":
@@ -103,11 +110,13 @@ class GetReportResponse():
 
         df = pd.read_html(html, header=0, decimal=',')[table_index]
         converters = {c: lambda x: str(x) for c in df.columns}
-        df = pd.read_html(html, header=0, decimal=',', converters=converters)[table_index]
+        df = pd.read_html(html, header=0, decimal=',',
+                          converters=converters)[table_index]
 
         for ind, column in enumerate(df.columns):
             if column.strip() != "Conta" and column.strip() != "Descrição":
-                df[column] = df[column].astype(str).str.strip().str.replace(".", "")
+                df[column] = df[column].astype(
+                    str).str.strip().str.replace(".", "")
                 df[column] = pd.to_numeric(df[column], errors='coerce')
             else:
                 df[column] = df[column].astype(str).str.strip().astype(str)
@@ -135,7 +144,8 @@ class GetCVMCodesResponse():
         return data
 
     def _parse_get_cvm_codes(self, html):
-        hdnEmpresas = BeautifulSoup(html, features="lxml").find(id='hdnEmpresas')
+        hdnEmpresas = BeautifulSoup(
+            html, features="lxml").find(id='hdnEmpresas')
         hdnEmpresas = hdnEmpresas.attrs["value"]
         hdnEmpresas = hdnEmpresas.replace('{ key:', '{ "key":')
         hdnEmpresas = hdnEmpresas.replace(', value:', ', "value":')
@@ -154,19 +164,23 @@ class GetCategoriesResponse():
         self.response = response
 
     def data(self):
-        data = self._parse_get_consulta_externa_cvm_categories(self.response.text)
+        data = self._parse_get_consulta_externa_cvm_categories(
+            self.response.text)
         return data
 
     def _parse_get_consulta_externa_cvm_categories(self, html):
-        hdnComboCategoriaTipoEspecie = BeautifulSoup(html, features="lxml").find(id='hdnComboCategoriaTipoEspecie')
+        hdnComboCategoriaTipoEspecie = BeautifulSoup(
+            html, features="lxml").find(id='hdnComboCategoriaTipoEspecie')
         hdnComboCategoriaTipoEspecie = hdnComboCategoriaTipoEspecie.attrs["value"]
 
-        hdnComboCategoriaTipoEspecie = BeautifulSoup(hdnComboCategoriaTipoEspecie, features="lxml").find_all('option')
+        hdnComboCategoriaTipoEspecie = BeautifulSoup(
+            hdnComboCategoriaTipoEspecie, features="lxml").find_all('option')
 
         categories = {}
 
         for option in hdnComboCategoriaTipoEspecie:
-            categories[option.attrs["value"]] = option.getText().replace(u'\xa0', u'')
+            categories[option.attrs["value"]
+                       ] = option.getText().replace(u'\xa0', u'')
 
         return categories
 
@@ -176,11 +190,13 @@ class GetCadastroInstrumentosTokenResponse():
         self.response = response
 
     def data(self):
-        data = self._parse_get_cadastro_instrumentos_token(self.response.json())
+        data = self._parse_get_cadastro_instrumentos_token(
+            self.response.json())
         return data
 
     def _parse_get_cadastro_instrumentos_token(self, json_response):
         return json_response["token"]
+
 
 class GetCadastroInstrumentosResponse():
     def __init__(self, response) -> None:
@@ -194,7 +210,8 @@ class GetCadastroInstrumentosResponse():
         ativos = pd.read_csv(io.StringIO(csv), sep=";")
 
         return ativos
-    
+
+
 class GetEmissorResponse():
     def __init__(self, response) -> None:
         self.response = response
@@ -206,19 +223,20 @@ class GetEmissorResponse():
     def _parse_get_emissor(self, content):
         file = zipfile.ZipFile(io.BytesIO(content))
         emissor_file = file.open('EMISSOR.TXT')
-        
+
         header = [
             'Asst',
             'descricao',
             'cnpj',
             'outro'
         ]
-        
+
         emissor_file = pd.read_csv(emissor_file, names=header)
         emissor_file['cnpj'] = pd.to_numeric(emissor_file['cnpj'])
 
         return emissor_file
-    
+
+
 class GetPesquisaCiaAbertaResponse():
     def __init__(self, response) -> None:
         self.response = response
@@ -229,12 +247,13 @@ class GetPesquisaCiaAbertaResponse():
 
     def _parse_get_pesquisa_cia_aberta(self, content):
         cod_cvm_dataframe = pd.read_html(content, header=0)[0]
-        cod_cvm_dataframe['CNPJ'] = pd.to_numeric(cod_cvm_dataframe['CNPJ'].str.replace(r'\D+', ''))
+        cod_cvm_dataframe['CNPJ'] = pd.to_numeric(
+            cod_cvm_dataframe['CNPJ'].str.replace(r'\D+', ''))
         cod_cvm_dataframe.rename(columns={
             'NOME': 'nome',
             'CNPJ': 'cnpj',
             'CÓDIGO CVM': 'cod_cvm',
             'TIPO DE PARTICIPANTE': 'tipo_participante',
             'SITUAÇÃO REGISTRO': 'situacao_registro'}, inplace=True)
-        
+
         return cod_cvm_dataframe
