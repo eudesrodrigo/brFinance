@@ -49,7 +49,7 @@ class GetSearchResponse():
                     'view_url'] = ENET_URL + search_results_df['acoes'].str.extract('OpenPopUpVer\(\'(.*?)\'\)', expand=False)
 
                 search_results_df[download_columns] = search_results_df['acoes'].str.extract(
-                    'OpenDownloadDocumentos\(\'(.*?)\'\)', expand=False).str.replace("'", "").str.split(",", expand=True)
+                    'OpenDownloadDocumentos\(\'(.*?)\'\)', expand=False).str.replace("'", "", regex=True).str.split(",", expand=True)
 
                 search_results_df.loc[
                     search_results_df['acoes'].str.contains("OpenPopUpVer\('"),
@@ -70,7 +70,7 @@ class GetSearchResponse():
                     new[0].str.strip(), format="%Y%m%d")
 
                 search_results_df['cod_cvm'] = search_results_df['cod_cvm'].str.replace(
-                    r'\D+', '')
+                    r'\D+', '', regex=True)
 
                 search_results_df = search_results_df.replace(
                     {'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
@@ -116,7 +116,7 @@ class GetReportResponse():
         for ind, column in enumerate(df.columns):
             if column.strip() != "Conta" and column.strip() != "Descrição":
                 df[column] = df[column].astype(
-                    str).str.strip().str.replace(".", "")
+                    str).str.strip().str.replace(".", "", regex=True)
                 df[column] = pd.to_numeric(df[column], errors='coerce')
             else:
                 df[column] = df[column].astype(str).str.strip().astype(str)
@@ -248,7 +248,7 @@ class GetPesquisaCiaAbertaResponse():
     def _parse_get_pesquisa_cia_aberta(self, content):
         cod_cvm_dataframe = pd.read_html(content, header=0)[0]
         cod_cvm_dataframe['CNPJ'] = pd.to_numeric(
-            cod_cvm_dataframe['CNPJ'].str.replace(r'\D+', ''))
+            cod_cvm_dataframe['CNPJ'].str.replace(r'\D+', '', regex=True))
         cod_cvm_dataframe.rename(columns={
             'NOME': 'nome',
             'CNPJ': 'cnpj',

@@ -28,11 +28,11 @@ class CVMHttpClient():
             end_date: date,
             category: str,
             last_ref_date
-            ):
-        
+    ):
+
         if (str(cod_cvm)) and (str(cod_cvm) is not None):
             cod_cvm = str(cod_cvm).zfill(6)
-        
+
         dataDe = start_date.strftime("%d/%m/%Y")
         dataAte = end_date.strftime("%d/%m/%Y")
         categoria = category
@@ -74,7 +74,8 @@ class CVMHttpClient():
                 token: '',
                 versaoCaptcha: ''""" + "}"
 
-        resp = self.session.post(self.LISTAR_DOCUMENTOS_URL, data=data, headers=headers)
+        resp = self.session.post(
+            self.LISTAR_DOCUMENTOS_URL, data=data, headers=headers, verify=False)
         return resp
 
     def get_reports(self, NumeroSequencialDocumento, CodigoTipoInstituicao, reports_list=None):
@@ -83,22 +84,28 @@ class CVMHttpClient():
         payload = {}
         headers = {}
 
-        response = self.session.get(url, headers=headers, data=payload)
+        response = self.session.get(
+            url, headers=headers, data=payload, verify=False)
 
         soup = BeautifulSoup(response.text, features="lxml")
-        hdnNumeroSequencialDocumento = soup.find(id='hdnNumeroSequencialDocumento').attrs["value"]
-        hdnCodigoTipoDocumento = soup.find(id='hdnCodigoTipoDocumento').attrs["value"]
+        hdnNumeroSequencialDocumento = soup.find(
+            id='hdnNumeroSequencialDocumento').attrs["value"]
+        hdnCodigoTipoDocumento = soup.find(
+            id='hdnCodigoTipoDocumento').attrs["value"]
         # hdnCodigoCvm = soup.find(id='hdnCodigoCvm').attrs["value"]
         # hdnDescricaoDocumento = soup.find(id='hdnDescricaoDocumento').attrs["value"]
-        hdnCodigoInstituicao = soup.find(id='hdnCodigoInstituicao').attrs["value"]
+        hdnCodigoInstituicao = soup.find(
+            id='hdnCodigoInstituicao').attrs["value"]
         hdnHash = soup.find(id='hdnHash').attrs["value"]
 
-        NumeroSequencialRegistroCvm = extract_substring("NumeroSequencialRegistroCvm=", "&", response.text)
+        NumeroSequencialRegistroCvm = extract_substring(
+            "NumeroSequencialRegistroCvm=", "&", response.text)
 
         end_of_report_url = f"&CodTipoDocumento={hdnCodigoTipoDocumento}&NumeroSequencialDocumento={hdnNumeroSequencialDocumento}&NumeroSequencialRegistroCvm={NumeroSequencialRegistroCvm}&CodigoTipoInstituicao={hdnCodigoInstituicao}&Hash={hdnHash}"
 
         reports = {}
-        opt = str(BeautifulSoup(response.text, features="lxml").find(id='cmbQuadro'))
+        opt = str(BeautifulSoup(response.text,
+                  features="lxml").find(id='cmbQuadro'))
         reports_options = BeautifulSoup(opt, features="lxml")
         reports_options = reports_options.find_all('option')
 
@@ -107,25 +114,28 @@ class CVMHttpClient():
 
         for item in reports_options:
             if (item.getText() in reports_list):
-                report_url = self.ENETCONSULTA_URL + item.attrs["value"] + end_of_report_url
-                report_html_response = self.session.get(report_url, headers=headers)
+                report_url = self.ENETCONSULTA_URL + \
+                    item.attrs["value"] + end_of_report_url
+                report_html_response = self.session.get(
+                    report_url, headers=headers, verify=False)
                 reports[item.getText()] = report_html_response
 
         return reports
 
     def get_enet_consulta_externa(self):
-        consulta_enet_response = self.session.get(self.ENET_CONSULTA_EXTERNA)
+        consulta_enet_response = self.session.get(
+            self.ENET_CONSULTA_EXTERNA, verify=False)
         return consulta_enet_response
-    
+
     def get_cadastro_de_instrumentos_token(self, ref_date: date):
         ref_date = ref_date.strftime("%Y-%m-%d")
-    
+
         token_url = f"https://arquivos.b3.com.br/api/download/requestname?fileName=InstrumentsConsolidated&date={ref_date}"
-        response = self.session.get(token_url)
-        
+        response = self.session.get(token_url, verify=False)
+
         if response.ok:
             return response
-    
+
     def get_cadastro_de_instrumentos(self, token: str):
         download_url = f"https://arquivos.b3.com.br/api/download/?token={token}"
 
@@ -148,21 +158,22 @@ class CVMHttpClient():
 
         response = self.session.get(
             download_url,
-            headers=headers)
-        
+            headers=headers,
+            verify=False)
+
         if response.ok:
             return response
 
     def get_emissor(self):
         url = f"https://sistemaswebb3-listados.b3.com.br/isinProxy/IsinCall/GetFileDownload/NTE3ODA="
         response = self.session.get(url, verify=False)
-        
+
         if response.ok:
             return response
-        
+
     def get_pesquisa_cia_aberta(self):
         url = f"https://cvmweb.cvm.gov.br/SWB/Sistemas/SCW/CPublica/CiaAb/ResultBuscaParticCiaAb.aspx?CNPJNome=&TipoConsult=C"
         response = self.session.get(url, verify=False)
-        
+
         if response.ok:
             return response
