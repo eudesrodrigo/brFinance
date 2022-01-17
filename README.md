@@ -35,11 +35,11 @@ cvm_httpclient = CVMAsyncBackend()
 
 # Dict de códigos CVM para todas as empresas
 cvm_codes = cvm_httpclient.get_cvm_codes()
-display(cvm_codes)
+print(cvm_codes)
 
 # Dict de todas as categorias de busca disponíveis (Fato relevante, DFP, ITR, etc.)
 categories = cvm_httpclient.get_consulta_externa_cvm_categories()
-display(categories)
+print(categories)
 
 # Realizando busca por Empresa
 start_date = date(2020, 1, 1)
