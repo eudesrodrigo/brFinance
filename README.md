@@ -96,6 +96,17 @@ Através da classe de client `CVMAsyncBackend`, você terá acesso as seguintes 
 | get_consulta_externa_cvm_results | cod_cvm, start_date, end_date, last_ref_date, report_type | Obtém o resultado da busca para os dados informados. Retorna um dataframe com os resultados.|
 | get_report | numero_seq_documento, codigo_tipo_instituicao | Utilizado para obter todos os demonstrativos de uma empresa na CVM. Retorna um dicionário com os nomes e os valores dos demonstrativos em um dataframe. |
 
+
+### Upload PyPi
+```
+pip install twine
+```
+```
+python setup.py sdist
+```
+```
+C:\Users\eudes\AppData\Roaming\Python\Python310\Scripts\twine
+```
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/eudesrodrigo/brFinance.svg?style=for-the-badge
