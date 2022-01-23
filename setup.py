@@ -13,6 +13,7 @@ install_requires = [
     'requests',
     'pandas',
     'beautifulsoup4',
+    'lxml'
 ]
 
 

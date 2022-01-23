@@ -26,6 +26,7 @@ class CVMHttpClient():
             cod_cvm: str,
             start_date: date,
             end_date: date,
+            participant_type: str,
             category: str,
             last_ref_date
     ):
@@ -33,8 +34,14 @@ class CVMHttpClient():
         if (str(cod_cvm)) and (str(cod_cvm) is not None):
             cod_cvm = str(cod_cvm).zfill(6)
 
-        dataDe = start_date.strftime("%d/%m/%Y")
-        dataAte = end_date.strftime("%d/%m/%Y")
+        if start_date and end_date:
+            dataDe = start_date.strftime("%d/%m/%Y")
+            dataAte = end_date.strftime("%d/%m/%Y")
+            periodo = "2"
+        else:
+            dataDe = ""
+            dataAte = ""
+            periodo = "0"
         categoria = category
         ultimaDtRef = BOOL_STRING_MAPPER[last_ref_date]
 
@@ -62,10 +69,10 @@ class CVMHttpClient():
                 setorAtividade: '-1',
                 categoriaEmissor: '-1',
                 situacaoEmissor: '-1',
-                tipoParticipante: '-1',
+                tipoParticipante: '{participant_type}',
                 dataReferencia: '',
                 categoria: '{categoria}',
-                periodo: '2',
+                periodo: '{periodo}',
                 horaIni: '',
                 horaFim: '',
                 palavraChave:'',

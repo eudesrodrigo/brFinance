@@ -185,6 +185,30 @@ class GetCategoriesResponse():
         return categories
 
 
+class GetTipoParticipanteResponse():
+    def __init__(self, response) -> None:
+        self.response = response
+
+    def data(self):
+        data = self._parse_get_consulta_externa_cvm_tipo_participante(
+            self.response.text)
+        return data
+
+    def _parse_get_consulta_externa_cvm_tipo_participante(self, html):
+        cboTipoParticipante = BeautifulSoup(
+            html, features="lxml").find(id='cboTipoParticipante')
+
+        cboTipoParticipante = cboTipoParticipante.find_all('option')
+
+        tipo_participante = {}
+
+        for option in cboTipoParticipante:
+            tipo_participante[option.attrs["value"]
+                              ] = option.getText()
+
+        return tipo_participante
+
+
 class GetCadastroInstrumentosTokenResponse():
     def __init__(self, response) -> None:
         self.response = response
