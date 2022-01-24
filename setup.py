@@ -19,23 +19,7 @@ install_requires = [
 
 setuptools.setup(
     name='brfinance',
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     version='0.0.8',
-=======
-    version='0.0.6',
->>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
-=======
-    version='0.0.6',
->>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
-=======
-    version='0.0.6',
->>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
-=======
-    version='0.0.6',
->>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
     packages=setuptools.find_packages(),
     python_requires='>=3.7.*',
     author='Eudes Rodrigo Nunes de Oliveira',
