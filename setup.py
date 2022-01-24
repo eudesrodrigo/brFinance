@@ -19,7 +19,7 @@ install_requires = [
 
 setuptools.setup(
     name='brfinance',
-    version='0.0.7',
+    version='0.0.8',
     packages=setuptools.find_packages(),
     python_requires='>=3.7.*',
     author='Eudes Rodrigo Nunes de Oliveira',
