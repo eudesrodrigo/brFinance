@@ -22,7 +22,11 @@ setuptools.setup(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     version='0.0.8',
+=======
+    version='0.0.6',
+>>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
 =======
     version='0.0.6',
 >>>>>>> parent of e6d1504 (Corrigido erro de letra maiuscula no nome da lib)
