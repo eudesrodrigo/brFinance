@@ -1,0 +1,1 @@
+from brfinance.backend import CVMAsyncBackend  # NOQA
