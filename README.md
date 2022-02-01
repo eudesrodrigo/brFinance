@@ -94,7 +94,7 @@ Através da classe de client `CVMAsyncBackend`, você terá acesso as seguintes 
 | get_cvm_codes      | - | Obtém os códigos cvm disponíveis para todas as empresas. Retorna um dicionário com o código CVM de chave e o nome da empresa. |
 | get_consulta_externa_cvm_categories      | - |   Obtém os códigos para as categorias de busca disponíveis, dentre elas "DFP", "ITR", etc. Retorna um dicionário com o código da busca e a descrição. |
 | get_consulta_externa_cvm_results | cod_cvm, start_date, end_date, last_ref_date, report_type | Obtém o resultado da busca para os dados informados. Retorna um dataframe com os resultados.|
-| get_report | numero_seq_documento, codigo_tipo_instituicao | Utilizado para obter todos os demonstrativos de uma empresa na CVM. Retorna um dicionário com os nomes e os valores dos demonstrativos em um dataframe. |
+| get_report | numero_seq_documento, codigo_tipo_instituicao, reports_list, previous_results | Utilizado para obter todos os demonstrativos de uma empresa na CVM. Retorna um dicionário com os nomes e os valores dos demonstrativos em um dataframe. |
 
 
 ### Upload PyPi
