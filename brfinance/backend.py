@@ -61,12 +61,13 @@ class CVMAsyncBackend():
             self,
             NumeroSequencialDocumento,
             CodigoTipoInstituicao,
-            reports_list=None):
+            reports_list=None,
+            previous_results=False):
         response = self._http_client().get_reports(
             NumeroSequencialDocumento,
             CodigoTipoInstituicao,
             reports_list)
-        response_class = GetReportResponse(response=response)
+        response_class = GetReportResponse(response=response, previous_results=previous_results)
 
         return response_class.data()
 
