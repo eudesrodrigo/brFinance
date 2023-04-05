@@ -126,7 +126,7 @@ class GetReportResponse():
             if not self.previous_results:
                 # Get first column (most recent data available)
                 df = df.iloc[:, 0:3]
-                df.set_axis([*df.columns[:-1], 'Valor'], axis=1, inplace=True)
+                df = df.set_axis([*df.columns[:-1], 'Valor'], axis=1, copy=False)
 
         # df["refDate"] = reference_date
         #df["refDate"] = pd.to_datetime(df["refDate"], errors="coerce")
