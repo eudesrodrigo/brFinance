@@ -75,7 +75,7 @@ class GetSearchResponse():
                 search_results_df = search_results_df.replace(
                     {'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
 
-                response_df = response_df.append(search_results_df)
+                response_df = pd.concat([response_df,search_results_df])
 
         return response_df
 
