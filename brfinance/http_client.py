@@ -34,9 +34,17 @@ class CVMHttpClient():
         if (str(cod_cvm)) and (str(cod_cvm) is not None):
             cod_cvm = str(cod_cvm).zfill(6)
 
-        if start_date and end_date:
-            dataDe = start_date.strftime("%d/%m/%Y")
-            dataAte = end_date.strftime("%d/%m/%Y")
+        if start_date or end_date:
+            try:
+              dataDe = start_date.strftime("%d/%m/%Y")
+            except:
+              dataDe = ''
+
+            try:
+              dataAte = end_date.strftime("%d/%m/%Y")
+            except:
+              dataAte = ''
+
             periodo = "2"
         else:
             dataDe = ""
@@ -63,7 +71,8 @@ class CVMHttpClient():
             'x-dtpc': '28$428327064_275h18vMIPKIVDJMJWUHHIHJSUAWKKKMKVABKHO-0e0',
             'X-Requested-With': 'XMLHttpRequest'}
 
-        data = "{" + f"""dataDe: '{dataDe}',
+        data = "{" + f"""
+                dataDe: '{dataDe}',
                 dataAte: '{dataAte}' ,
                 empresa: '{cod_cvm}',
                 setorAtividade: '-1',
@@ -79,7 +88,8 @@ class CVMHttpClient():
                 ultimaDtRef:'{ultimaDtRef}',
                 tipoEmpresa:'0',
                 token: '',
-                versaoCaptcha: ''""" + "}"
+                versaoCaptcha: ''
+                """ + "}"
 
         resp = self.session.post(
             self.LISTAR_DOCUMENTOS_URL, data=data, headers=headers, verify=False)
