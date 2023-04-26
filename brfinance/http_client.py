@@ -58,7 +58,6 @@ class CVMHttpClient():
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
             'Connection': 'keep-alive',
-            'Content-Length': '324',
             'Content-Type': 'application/json; charset=UTF-8',
             'DNT': '1',
             'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
