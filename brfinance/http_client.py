@@ -23,7 +23,7 @@ class CVMHttpClient():
 
     def get_search_results(
             self,
-            cod_cvm: str,
+            cod_cvm: list,
             start_date: date,
             end_date: date,
             participant_type: str,
@@ -31,8 +31,10 @@ class CVMHttpClient():
             last_ref_date
     ):
 
-        if (str(cod_cvm)) and (str(cod_cvm) is not None):
-            cod_cvm = str(cod_cvm).zfill(6)
+        cod_cvm_string = ''
+
+        if len(cod_cvm) > 0:
+            cod_cvm_string = str(",".join([f"{item}".zfill(6) for item in cod_cvm]))
 
         if start_date or end_date:
             try:
@@ -73,7 +75,7 @@ class CVMHttpClient():
         data = "{" + f"""
                 dataDe: '{dataDe}',
                 dataAte: '{dataAte}' ,
-                empresa: '{cod_cvm}',
+                empresa: '{cod_cvm_string}',
                 setorAtividade: '-1',
                 categoriaEmissor: '-1',
                 situacaoEmissor: '-1',
