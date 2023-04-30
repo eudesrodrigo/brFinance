@@ -21,7 +21,7 @@ setuptools.setup(
     name='brfinance',
     version='0.0.9',
     packages=setuptools.find_packages(),
-    python_requires='>=3.7.*',
+    python_requires='>=3.7',
     author='Eudes Rodrigo Nunes de Oliveira',
     author_email='eudesrodrigo@outlook.com',
     description=(

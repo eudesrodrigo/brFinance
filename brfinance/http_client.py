@@ -23,7 +23,7 @@ class CVMHttpClient():
 
     def get_search_results(
             self,
-            cod_cvm: str,
+            cod_cvm: list,
             start_date: date,
             end_date: date,
             participant_type: str,
@@ -31,12 +31,22 @@ class CVMHttpClient():
             last_ref_date
     ):
 
-        if (str(cod_cvm)) and (str(cod_cvm) is not None):
-            cod_cvm = str(cod_cvm).zfill(6)
+        cod_cvm_string = ''
 
-        if start_date and end_date:
-            dataDe = start_date.strftime("%d/%m/%Y")
-            dataAte = end_date.strftime("%d/%m/%Y")
+        if len(cod_cvm) > 0:
+            cod_cvm_string = str(",".join([f"{item}".zfill(6) for item in cod_cvm]))
+
+        if start_date or end_date:
+            try:
+              dataDe = start_date.strftime("%d/%m/%Y")
+            except:
+              dataDe = ''
+
+            try:
+              dataAte = end_date.strftime("%d/%m/%Y")
+            except:
+              dataAte = ''
+
             periodo = "2"
         else:
             dataDe = ""
@@ -50,7 +60,6 @@ class CVMHttpClient():
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
             'Connection': 'keep-alive',
-            'Content-Length': '324',
             'Content-Type': 'application/json; charset=UTF-8',
             'DNT': '1',
             'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
@@ -63,9 +72,10 @@ class CVMHttpClient():
             'x-dtpc': '28$428327064_275h18vMIPKIVDJMJWUHHIHJSUAWKKKMKVABKHO-0e0',
             'X-Requested-With': 'XMLHttpRequest'}
 
-        data = "{" + f"""dataDe: '{dataDe}',
+        data = "{" + f"""
+                dataDe: '{dataDe}',
                 dataAte: '{dataAte}' ,
-                empresa: '{cod_cvm}',
+                empresa: '{cod_cvm_string}',
                 setorAtividade: '-1',
                 categoriaEmissor: '-1',
                 situacaoEmissor: '-1',
@@ -79,7 +89,8 @@ class CVMHttpClient():
                 ultimaDtRef:'{ultimaDtRef}',
                 tipoEmpresa:'0',
                 token: '',
-                versaoCaptcha: ''""" + "}"
+                versaoCaptcha: ''
+                """ + "}"
 
         resp = self.session.post(
             self.LISTAR_DOCUMENTOS_URL, data=data, headers=headers, verify=False)

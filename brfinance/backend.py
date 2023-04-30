@@ -45,8 +45,7 @@ class CVMAsyncBackend():
             participant_type = ['-1']
 
         response = self._http_client().get_search_results(
-            cod_cvm=str(
-                ",".join([str(item) for item in cod_cvm])),
+            cod_cvm=cod_cvm,
             start_date=start_date,
             end_date=end_date,
             category=",".join(category),
