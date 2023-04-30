@@ -75,7 +75,7 @@ class GetSearchResponse():
                 search_results_df = search_results_df.replace(
                     {'</spanOrder>': ''}, regex=True).sort_values('data_entrega', ascending=False)
 
-                response_df = response_df.append(search_results_df)
+                response_df = pd.concat([response_df,search_results_df])
 
         return response_df
 
@@ -126,7 +126,7 @@ class GetReportResponse():
             if not self.previous_results:
                 # Get first column (most recent data available)
                 df = df.iloc[:, 0:3]
-                df.set_axis([*df.columns[:-1], 'Valor'], axis=1, inplace=True)
+                df = df.set_axis([*df.columns[:-1], 'Valor'], axis=1, copy=False)
 
         # df["refDate"] = reference_date
         #df["refDate"] = pd.to_datetime(df["refDate"], errors="coerce")
